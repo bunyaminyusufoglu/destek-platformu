@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
   isStudent: { type: Boolean, default: true },
@@ -9,4 +9,4 @@ const userSchema = new mongoose.Schema({
   skills: { type: [String], default: [] }
 }, { timestamps: true });
 
-module.exports = mongoose.model("User", userSchema);
+export default mongoose.model("User", userSchema);
