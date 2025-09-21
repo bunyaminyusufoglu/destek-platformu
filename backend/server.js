@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import protectedRoutes from "./routes/protected.js";
 import supportRoutes from "./routes/support.js";
+import offerRoutes from "./routes/offer.js";
 import connectDB from "./config/db.js";
 
 // Environment variables yükle
@@ -20,6 +21,7 @@ app.use(cors());
 app.use("/api/auth", authRoutes);
 app.use("/api/protected", protectedRoutes);
 app.use("/api/support", supportRoutes);
+app.use("/api/offers", offerRoutes);
 
 
 const PORT = process.env.PORT || 5000;

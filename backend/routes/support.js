@@ -1,5 +1,6 @@
 import express from "express";
 import SupportRequest from "../models/SupportRequest.js";
+import Offer from "../models/Offer.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import User from "../models/User.js";
 
@@ -36,8 +37,23 @@ router.post("/create", authMiddleware, async (req, res) => {
 // Tüm destek taleplerini listele
 router.get("/", authMiddleware, async (req, res) => {
   try {
-    const requests = await SupportRequest.find().populate("student", "name email").populate("expert", "name email");
-    res.json(requests);
+    const requests = await SupportRequest.find()
+      .populate("student", "name email")
+      .populate("expert", "name email")
+      .sort({ createdAt: -1 });
+    
+    // Her talebe teklif sayısını ekle
+    const requestsWithOfferCount = await Promise.all(
+      requests.map(async (request) => {
+        const offerCount = await Offer.countDocuments({ supportRequest: request._id });
+        return {
+          ...request.toObject(),
+          offerCount
+        };
+      })
+    );
+    
+    res.json(requestsWithOfferCount);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
