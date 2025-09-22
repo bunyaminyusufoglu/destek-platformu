@@ -2,12 +2,14 @@ import express from "express";
 import Offer from "../models/Offer.js";
 import SupportRequest from "../models/SupportRequest.js";
 import User from "../models/User.js";
+import Message from "../models/Message.js";
 import authMiddleware from "../middleware/authMiddleware.js";
+import { validate, createOfferSchema, validateObjectId } from "../middleware/validation.js";
 
 const router = express.Router();
 
 // Teklif gönder (sadece uzmanlar)
-router.post("/create", authMiddleware, async (req, res) => {
+router.post("/create", authMiddleware, validate(createOfferSchema), async (req, res) => {
   try {
     const { supportRequestId, message, proposedPrice, estimatedDuration } = req.body;
 
@@ -61,7 +63,7 @@ router.post("/create", authMiddleware, async (req, res) => {
 });
 
 // Bir talebe gelen teklifleri listele (talep sahibi)
-router.get("/request/:requestId", authMiddleware, async (req, res) => {
+router.get("/request/:requestId", authMiddleware, validateObjectId("requestId"), async (req, res) => {
   try {
     const supportRequest = await SupportRequest.findById(req.params.requestId);
     
@@ -104,7 +106,7 @@ router.get("/my-offers", authMiddleware, async (req, res) => {
 });
 
 // Teklif kabul et (talep sahibi)
-router.put("/:offerId/accept", authMiddleware, async (req, res) => {
+router.put("/:offerId/accept", authMiddleware, validateObjectId("offerId"), async (req, res) => {
   try {
     const offer = await Offer.findById(req.params.offerId)
       .populate("supportRequest");
@@ -148,14 +150,43 @@ router.put("/:offerId/accept", authMiddleware, async (req, res) => {
       }
     );
 
-    res.json({ message: "Teklif kabul edildi" });
+    // Otomatik hoş geldin mesajları gönder
+    const student = await User.findById(offer.supportRequest.student);
+    const expert = await User.findById(offer.expert);
+
+    // Öğrenciye hoş geldin mesajı
+    const studentWelcomeMessage = new Message({
+      conversation: offer.supportRequest._id,
+      sender: offer.expert,
+      receiver: offer.supportRequest.student,
+      content: `Merhaba ${student.name}! Teklifimi kabul ettiğiniz için teşekkür ederim. Bu proje üzerinde birlikte çalışmaya başlayabiliriz. Size nasıl yardımcı olabilirim?`,
+      messageType: "text",
+      relatedOffer: offer._id
+    });
+
+    // Uzmana hoş geldin mesajı
+    const expertWelcomeMessage = new Message({
+      conversation: offer.supportRequest._id,
+      sender: offer.supportRequest.student,
+      receiver: offer.expert,
+      content: `Merhaba ${expert.name}! Projemi kabul ettiğiniz için teşekkür ederim. Birlikte çalışmaya hazırım.`,
+      messageType: "text",
+      relatedOffer: offer._id
+    });
+
+    await Promise.all([studentWelcomeMessage.save(), expertWelcomeMessage.save()]);
+
+    res.json({ 
+      message: "Teklif kabul edildi ve mesajlaşma başlatıldı",
+      conversationId: offer.supportRequest._id
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
 // Teklif reddet (talep sahibi)
-router.put("/:offerId/reject", authMiddleware, async (req, res) => {
+router.put("/:offerId/reject", authMiddleware, validateObjectId("offerId"), async (req, res) => {
   try {
     const offer = await Offer.findById(req.params.offerId)
       .populate("supportRequest");

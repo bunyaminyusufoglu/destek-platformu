@@ -3,11 +3,12 @@ import SupportRequest from "../models/SupportRequest.js";
 import Offer from "../models/Offer.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import User from "../models/User.js";
+import { validate, createSupportRequestSchema, updateSupportRequestSchema, validateObjectId } from "../middleware/validation.js";
 
 const router = express.Router();
 
 // Talep oluştur (sadece öğrenciler)
-router.post("/create", authMiddleware, async (req, res) => {
+router.post("/create", authMiddleware, validate(createSupportRequestSchema), async (req, res) => {
   try {
     const { title, description, budget, deadline, skills } = req.body;
 
@@ -60,7 +61,7 @@ router.get("/", authMiddleware, async (req, res) => {
 });
 
 // Tekil talep getir
-router.get("/:id", authMiddleware, async (req, res) => {
+router.get("/:id", authMiddleware, validateObjectId("id"), async (req, res) => {
   try {
     const request = await SupportRequest.findById(req.params.id)
       .populate("student", "name email")
@@ -77,7 +78,7 @@ router.get("/:id", authMiddleware, async (req, res) => {
 });
 
 // Talep güncelle (sadece talep sahibi)
-router.put("/:id", authMiddleware, async (req, res) => {
+router.put("/:id", authMiddleware, validateObjectId("id"), validate(updateSupportRequestSchema), async (req, res) => {
   try {
     const { title, description, budget, deadline, skills } = req.body;
     
@@ -110,7 +111,7 @@ router.put("/:id", authMiddleware, async (req, res) => {
 });
 
 // Talep sil (sadece talep sahibi)
-router.delete("/:id", authMiddleware, async (req, res) => {
+router.delete("/:id", authMiddleware, validateObjectId("id"), async (req, res) => {
   try {
     const request = await SupportRequest.findById(req.params.id);
     
