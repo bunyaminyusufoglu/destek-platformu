@@ -11,7 +11,7 @@ const supportRequestSchema = new mongoose.Schema({
     enum: ["open", "assigned", "in_progress", "completed", "cancelled"], 
     default: "open" 
   },
-  student: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   expert: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
   assignedAt: { type: Date, default: null },
   completedAt: { type: Date, default: null }

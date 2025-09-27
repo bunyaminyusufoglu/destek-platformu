@@ -3,6 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
+import Dashboard from './components/shared/Dashboard';
+import ProtectedRoute from './components/shared/ProtectedRoute';
+import Layout from './components/shared/Layout';
 
 // Public Route Component (sadece giriş yapmamış kullanıcılar)
 const PublicRoute = ({ children }) => {
@@ -39,8 +42,20 @@ function App() {
               } 
             />
             
+            {/* Protected Routes */}
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Dashboard />
+                  </Layout>
+                </ProtectedRoute>
+              } 
+            />
+            
             {/* Default Route */}
-            <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="/" element={<Navigate to="/dashboard" />} />
           </Routes>
         </div>
       </Router>

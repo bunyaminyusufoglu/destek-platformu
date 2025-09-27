@@ -7,16 +7,14 @@ import { validate, createSupportRequestSchema, updateSupportRequestSchema, valid
 
 const router = express.Router();
 
-// Talep oluştur (sadece öğrenciler)
 router.post("/create", authMiddleware, validate(createSupportRequestSchema), async (req, res) => {
   try {
     const { title, description, budget, deadline, skills } = req.body;
 
-    // Kullanıcı bilgisi çek
     const user = await User.findById(req.user.id);
 
-    if (!user || !user.isStudent) {
-      return res.status(403).json({ message: "Yalnızca öğrenciler talep oluşturabilir" });
+    if (!user || !user.isUser) {
+      return res.status(403).json({ message: "Yalnızca kullanıcılar talep oluşturabilir" });
     }
 
     const newRequest = new SupportRequest({
@@ -25,7 +23,7 @@ router.post("/create", authMiddleware, validate(createSupportRequestSchema), asy
       budget,
       deadline,
       skills,
-      student: req.user.id
+      user: req.user.id
     });
 
     await newRequest.save();
@@ -35,11 +33,10 @@ router.post("/create", authMiddleware, validate(createSupportRequestSchema), asy
   }
 });
 
-// Tüm destek taleplerini listele
 router.get("/", authMiddleware, async (req, res) => {
   try {
     const requests = await SupportRequest.find()
-      .populate("student", "name email")
+      .populate("user", "name email")
       .populate("expert", "name email")
       .sort({ createdAt: -1 });
     
@@ -64,7 +61,7 @@ router.get("/", authMiddleware, async (req, res) => {
 router.get("/:id", authMiddleware, validateObjectId("id"), async (req, res) => {
   try {
     const request = await SupportRequest.findById(req.params.id)
-      .populate("student", "name email")
+      .populate("user", "name email")
       .populate("expert", "name email");
     
     if (!request) {
@@ -89,7 +86,7 @@ router.put("/:id", authMiddleware, validateObjectId("id"), validate(updateSuppor
     }
     
     // Sadece talep sahibi güncelleyebilir
-    if (request.student.toString() !== req.user.id) {
+    if (request.user.toString() !== req.user.id) {
       return res.status(403).json({ message: "Sadece talep sahibi güncelleyebilir" });
     }
     
@@ -102,7 +99,7 @@ router.put("/:id", authMiddleware, validateObjectId("id"), validate(updateSuppor
       req.params.id,
       { title, description, budget, deadline, skills },
       { new: true }
-    ).populate("student", "name email");
+    ).populate("user", "name email");
     
     res.json({ message: "Destek talebi güncellendi", request: updatedRequest });
   } catch (err) {
@@ -120,7 +117,7 @@ router.delete("/:id", authMiddleware, validateObjectId("id"), async (req, res) =
     }
     
     // Sadece talep sahibi silebilir
-    if (request.student.toString() !== req.user.id) {
+    if (request.user.toString() !== req.user.id) {
       return res.status(403).json({ message: "Sadece talep sahibi silebilir" });
     }
     

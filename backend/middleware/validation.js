@@ -19,8 +19,9 @@ export const validate = (schema) => {
 
 // Auth validation schemas
 export const registerSchema = Joi.object({
-  isStudent: Joi.boolean().required(),
+  isUser: Joi.boolean().required(),
   isExpert: Joi.boolean().required(),
+  isAdmin: Joi.boolean().forbidden(), // Admin kayıt sırasında oluşturulamaz
   name: Joi.string().min(2).max(50).required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(6).max(100).required(),

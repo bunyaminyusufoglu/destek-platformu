@@ -31,7 +31,7 @@ const Login = () => {
 
     try {
       await login(formData);
-      // TODO: Dashboard yönlendirmesi
+      window.location.href = '/dashboard';
     } catch (err) {
       setError(err.message);
     } finally {

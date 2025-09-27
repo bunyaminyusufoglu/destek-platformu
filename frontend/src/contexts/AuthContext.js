@@ -110,8 +110,9 @@ export const AuthProvider = ({ children }) => {
     logout,
     clearError,
     isAuthenticated: !!user,
-    isStudent: user?.isStudent || false,
+    isUser: user?.isUser || false,
     isExpert: user?.isExpert || false,
+    isAdmin: user?.isAdmin || false,
   };
 
   return (

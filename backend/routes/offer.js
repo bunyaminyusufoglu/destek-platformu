@@ -31,7 +31,7 @@ router.post("/create", authMiddleware, validate(createOfferSchema), async (req, 
     }
 
     // Kendi talebine teklif gönderemez
-    if (supportRequest.student.toString() === req.user.id) {
+    if (supportRequest.user.toString() === req.user.id) {
       return res.status(400).json({ message: "Kendi talebinize teklif gönderemezsiniz" });
     }
 
@@ -72,7 +72,7 @@ router.get("/request/:requestId", authMiddleware, validateObjectId("requestId"),
     }
 
     // Sadece talep sahibi teklifleri görebilir
-    if (supportRequest.student.toString() !== req.user.id) {
+    if (supportRequest.user.toString() !== req.user.id) {
       return res.status(403).json({ message: "Bu talebe ait teklifleri göremezsiniz" });
     }
 
@@ -116,7 +116,7 @@ router.put("/:offerId/accept", authMiddleware, validateObjectId("offerId"), asyn
     }
 
     // Sadece talep sahibi kabul edebilir
-    if (offer.supportRequest.student.toString() !== req.user.id) {
+    if (offer.supportRequest.user.toString() !== req.user.id) {
       return res.status(403).json({ message: "Bu teklifi kabul edemezsiniz" });
     }
 
@@ -151,15 +151,15 @@ router.put("/:offerId/accept", authMiddleware, validateObjectId("offerId"), asyn
     );
 
     // Otomatik hoş geldin mesajları gönder
-    const student = await User.findById(offer.supportRequest.student);
+    const user = await User.findById(offer.supportRequest.user);
     const expert = await User.findById(offer.expert);
 
-    // Öğrenciye hoş geldin mesajı
-    const studentWelcomeMessage = new Message({
+    // Kullanıcıya hoş geldin mesajı
+    const userWelcomeMessage = new Message({
       conversation: offer.supportRequest._id,
       sender: offer.expert,
-      receiver: offer.supportRequest.student,
-      content: `Merhaba ${student.name}! Teklifimi kabul ettiğiniz için teşekkür ederim. Bu proje üzerinde birlikte çalışmaya başlayabiliriz. Size nasıl yardımcı olabilirim?`,
+      receiver: offer.supportRequest.user,
+      content: `Merhaba ${user.name}! Teklifimi kabul ettiğiniz için teşekkür ederim. Bu proje üzerinde birlikte çalışmaya başlayabiliriz. Size nasıl yardımcı olabilirim?`,
       messageType: "text",
       relatedOffer: offer._id
     });
@@ -167,14 +167,14 @@ router.put("/:offerId/accept", authMiddleware, validateObjectId("offerId"), asyn
     // Uzmana hoş geldin mesajı
     const expertWelcomeMessage = new Message({
       conversation: offer.supportRequest._id,
-      sender: offer.supportRequest.student,
+      sender: offer.supportRequest.user,
       receiver: offer.expert,
       content: `Merhaba ${expert.name}! Projemi kabul ettiğiniz için teşekkür ederim. Birlikte çalışmaya hazırım.`,
       messageType: "text",
       relatedOffer: offer._id
     });
 
-    await Promise.all([studentWelcomeMessage.save(), expertWelcomeMessage.save()]);
+    await Promise.all([userWelcomeMessage.save(), expertWelcomeMessage.save()]);
 
     res.json({ 
       message: "Teklif kabul edildi ve mesajlaşma başlatıldı",
@@ -196,7 +196,7 @@ router.put("/:offerId/reject", authMiddleware, validateObjectId("offerId"), asyn
     }
 
     // Sadece talep sahibi reddedebilir
-    if (offer.supportRequest.student.toString() !== req.user.id) {
+    if (offer.supportRequest.user.toString() !== req.user.id) {
       return res.status(403).json({ message: "Bu teklifi reddedemezsiniz" });
     }
 

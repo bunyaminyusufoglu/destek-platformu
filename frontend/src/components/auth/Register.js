@@ -9,7 +9,7 @@ const Register = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'student',
+    role: 'user',
     skills: []
   });
   const [skillsInput, setSkillsInput] = useState('');
@@ -64,11 +64,12 @@ const Register = () => {
 
     try {
       const { confirmPassword, ...registerData } = formData;
-      // Role göre isStudent ve isExpert ayarla
-      registerData.isStudent = formData.role === 'student';
+      // Role göre isUser ve isExpert ayarla
+      registerData.isUser = formData.role === 'user';
       registerData.isExpert = formData.role === 'expert';
+      registerData.isAdmin = false; // Admin sadece manuel olarak oluşturulur
       await register(registerData);
-      // TODO: Dashboard yönlendirmesi
+      window.location.href = '/dashboard';
     } catch (err) {
       setError(err.message);
     } finally {
@@ -186,10 +187,10 @@ const Register = () => {
                         type="radio"
                         id="student"
                         name="role"
-                        value="student"
-                        checked={formData.role === 'student'}
+                        value="user"
+                        checked={formData.role === 'user'}
                         onChange={handleChange}
-                        label="🎓 Öğrenci"
+                        label="👤 Kullanıcı"
                         className="fw-medium"
                       />
                       <Form.Check

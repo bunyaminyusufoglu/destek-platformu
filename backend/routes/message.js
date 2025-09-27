@@ -23,7 +23,7 @@ router.post("/send", authMiddleware, validate(sendMessageSchema), async (req, re
 
     // Destek talebi var mı kontrol et
     const supportRequest = await SupportRequest.findById(conversationId)
-      .populate("student", "name email")
+      .populate("user", "name email")
       .populate("expert", "name email");
 
     if (!supportRequest) {
@@ -32,10 +32,10 @@ router.post("/send", authMiddleware, validate(sendMessageSchema), async (req, re
 
     // Kullanıcı bu konuşmaya dahil mi kontrol et
     const userId = req.user.id;
-    const isStudent = supportRequest.student._id.toString() === userId;
+    const isUser = supportRequest.user._id.toString() === userId;
     const isExpert = supportRequest.expert && supportRequest.expert._id.toString() === userId;
 
-    if (!isStudent && !isExpert) {
+    if (!isUser && !isExpert) {
       return res.status(403).json({ message: "Bu konuşmaya erişim yetkiniz yok" });
     }
 
@@ -45,7 +45,7 @@ router.post("/send", authMiddleware, validate(sendMessageSchema), async (req, re
     }
 
     // Alıcıyı belirle
-    const receiver = isStudent ? supportRequest.expert : supportRequest.student;
+    const receiver = isUser ? supportRequest.expert : supportRequest.user;
     
     if (!receiver) {
       return res.status(400).json({ message: "Bu talep henüz atanmamış" });
@@ -101,7 +101,7 @@ router.get("/conversation/:conversationId", authMiddleware, validateObjectId("co
 
     // Destek talebi var mı kontrol et
     const supportRequest = await SupportRequest.findById(conversationId)
-      .populate("student", "name email")
+      .populate("user", "name email")
       .populate("expert", "name email");
 
     if (!supportRequest) {
@@ -110,10 +110,10 @@ router.get("/conversation/:conversationId", authMiddleware, validateObjectId("co
 
     // Kullanıcı bu konuşmaya dahil mi kontrol et
     const userId = req.user.id;
-    const isStudent = supportRequest.student._id.toString() === userId;
+    const isUser = supportRequest.user._id.toString() === userId;
     const isExpert = supportRequest.expert && supportRequest.expert._id.toString() === userId;
 
-    if (!isStudent && !isExpert) {
+    if (!isUser && !isExpert) {
       return res.status(403).json({ message: "Bu konuşmaya erişim yetkiniz yok" });
     }
 
@@ -161,12 +161,12 @@ router.get("/my-conversations", authMiddleware, async (req, res) => {
     // Kullanıcının dahil olduğu destek taleplerini getir
     const supportRequests = await SupportRequest.find({
       $or: [
-        { student: userId },
+        { user: userId },
         { expert: userId }
       ],
       status: { $in: ["assigned", "in_progress", "completed"] }
     })
-      .populate("student", "name email")
+      .populate("user", "name email")
       .populate("expert", "name email")
       .sort({ updatedAt: -1 });
 
@@ -193,7 +193,7 @@ router.get("/my-conversations", authMiddleware, async (req, res) => {
             deadline: request.deadline
           },
           participants: {
-            student: request.student,
+            user: request.user,
             expert: request.expert
           },
           lastMessage: lastMessage ? {
@@ -271,10 +271,10 @@ router.put("/conversation/:conversationId/read-all", authMiddleware, validateObj
     }
 
     // Kullanıcı bu konuşmaya dahil mi kontrol et
-    const isStudent = supportRequest.student.toString() === userId;
+    const isUser = supportRequest.user.toString() === userId;
     const isExpert = supportRequest.expert && supportRequest.expert.toString() === userId;
 
-    if (!isStudent && !isExpert) {
+    if (!isUser && !isExpert) {
       return res.status(403).json({ message: "Bu konuşmaya erişim yetkiniz yok" });
     }
 

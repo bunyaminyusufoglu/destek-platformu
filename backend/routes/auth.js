@@ -9,7 +9,7 @@ const router = express.Router();
 // Register
 router.post("/register", validate(registerSchema), async (req, res) => {
   try {
-    const { isStudent, isExpert, name, email, password, skills } = req.body;
+    const { isUser, isExpert, name, email, password, skills } = req.body;
 
     // Email kontrol
     const existingUser = await User.findOne({ email });
@@ -20,8 +20,9 @@ router.post("/register", validate(registerSchema), async (req, res) => {
 
     // Yeni kullanıcı oluştur
     const newUser = new User({
-      isStudent,
+      isUser,
       isExpert,
+      isAdmin: false, // Admin sadece manuel olarak oluşturulur
       name,
       email,
       password: hashedPassword,
@@ -54,7 +55,18 @@ router.post("/login", validate(loginSchema), async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email } });
+    res.json({ 
+      token, 
+      user: { 
+        id: user._id, 
+        name: user.name, 
+        email: user.email,
+        isUser: user.isUser,
+        isExpert: user.isExpert,
+        isAdmin: user.isAdmin,
+        skills: user.skills
+      } 
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
