@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import Header from './components/shared/Header';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Dashboard from './components/shared/Dashboard';
@@ -23,6 +24,7 @@ function App() {
     <AuthProvider>
       <Router>
         <div className="App">
+          <Header />
           <Routes>
             {/* Public Routes */}
             <Route 

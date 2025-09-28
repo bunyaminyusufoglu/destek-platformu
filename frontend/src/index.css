@@ -26,6 +26,206 @@ code {
     monospace;
 }
 
+/* Modern Auth Pages */
+.modern-auth-container {
+  min-height: 100vh;
+  background: #f5f5f5;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Mountain Background */
+.mountain-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  z-index: 1;
+}
+
+.sky-gradient {
+  height: 70%;
+  background: linear-gradient(180deg, #1a237e 0%, #283593 30%, #3949ab 60%, #5c6bc0 100%);
+  position: relative;
+}
+
+.stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(1px 1px at 25px 25px, white, transparent),
+    radial-gradient(1px 1px at 50px 50px, white, transparent),
+    radial-gradient(1px 1px at 75px 30px, white, transparent),
+    radial-gradient(1px 1px at 100px 60px, white, transparent),
+    radial-gradient(1px 1px at 125px 20px, white, transparent),
+    radial-gradient(1px 1px at 150px 45px, white, transparent),
+    radial-gradient(1px 1px at 175px 35px, white, transparent);
+  background-repeat: repeat;
+  background-size: 200px 80px;
+  opacity: 0.8;
+}
+
+.mountains {
+  height: 30%;
+  position: relative;
+  background: linear-gradient(180deg, #5c6bc0 0%, #7986cb 50%, #9fa8da 100%);
+}
+
+.mountain {
+  position: absolute;
+  bottom: 0;
+  border-radius: 50% 50% 0 0;
+}
+
+.mountain-1 {
+  left: -5%;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(180deg, #1a237e 0%, #283593 50%, #3949ab 100%);
+  transform: skewX(-8deg);
+}
+
+.mountain-2 {
+  left: 25%;
+  width: 40%;
+  height: 85%;
+  background: linear-gradient(180deg, #283593 0%, #3949ab 50%, #1a237e 100%);
+  transform: skewX(5deg);
+}
+
+.mountain-3 {
+  right: -5%;
+  width: 35%;
+  height: 95%;
+  background: linear-gradient(180deg, #3949ab 0%, #283593 50%, #1a237e 100%);
+  transform: skewX(-3deg);
+}
+
+/* Modern Auth Card */
+.modern-auth-card {
+  background: white;
+  border: none;
+  border-radius: 25px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 2;
+  margin: 0 auto;
+  max-width: 450px;
+  width: 100%;
+  overflow: hidden;
+  margin-top: 2rem;
+}
+
+.modern-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #2d3748;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.5px;
+}
+
+.modern-subtitle {
+  color: #718096;
+  text-align: center;
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.4;
+}
+
+/* Modern Inputs */
+.modern-input {
+  border: 1px solid #e2e8f0;
+  border-radius: 15px;
+  padding: 15px 18px;
+  background: #f8f9fa;
+  transition: all 0.3s ease;
+  font-size: 16px;
+  color: #2d3748;
+}
+
+.modern-input:focus {
+  border-color: #ff6b9d;
+  background: white;
+  box-shadow: 0 0 0 2px rgba(255, 107, 157, 0.1);
+  outline: none;
+}
+
+.modern-input::placeholder {
+  color: #a0aec0;
+  font-weight: 400;
+}
+
+/* Modern Button */
+.modern-btn {
+  background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+  border: none;
+  border-radius: 15px;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  padding: 15px 20px;
+}
+
+.modern-btn:hover {
+  background: linear-gradient(135deg, #ff8fab 0%, #ff6b9d 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+}
+
+/* Modern Toggle Buttons */
+.modern-toggle-btn {
+  flex: 1;
+  text-align: center;
+  padding: 15px 20px;
+  border: 2px solid #e2e8f0;
+  border-radius: 15px;
+  background: white;
+  color: #718096;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  display: block;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.modern-toggle-btn.active {
+  background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+  border-color: #ff6b9d;
+  color: white;
+}
+
+.modern-toggle-btn:hover {
+  border-color: #ff6b9d;
+  color: #ff6b9d;
+  text-decoration: none;
+}
+
+.modern-toggle-btn.active:hover {
+  color: white;
+}
+
+/* Modern Links */
+.modern-forgot-link {
+  color: #718096;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.3s ease;
+  font-weight: 400;
+}
+
+.modern-forgot-link:hover {
+  color: #ff6b9d;
+  text-decoration: none;
+}
+
 /* Auth Pages Animations */
 .auth-container {
   min-height: 100vh;
@@ -295,6 +495,71 @@ code {
 .main-content {
   flex: 1;
   padding-top: 80px; /* Navbar height */
+}
+
+/* Main Header Styles */
+.main-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1030;
+  padding: 0.5rem 0;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: white;
+}
+
+.brand-logo:hover {
+  color: white;
+  text-decoration: none;
+}
+
+.brand-icon {
+  font-size: 2rem;
+  margin-right: 0.75rem;
+  animation: bounce 2s infinite;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.brand-subtitle {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1;
+  margin: 0;
+}
+
+.register-btn {
+  background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+  border: none;
+  border-radius: 20px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.register-btn:hover {
+  background: linear-gradient(135deg, #ff8fab 0%, #ff6b9d 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 107, 157, 0.4);
 }
 
 /* Navigation Styles */

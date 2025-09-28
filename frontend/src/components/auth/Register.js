@@ -78,33 +78,37 @@ const Register = () => {
   };
 
   return (
-    <div className="auth-container">
+    <div className="modern-auth-container">
+      {/* Mountain Background */}
+      <div className="mountain-background">
+        <div className="sky-gradient">
+          <div className="stars"></div>
+        </div>
+        <div className="mountains">
+          <div className="mountain mountain-1"></div>
+          <div className="mountain mountain-2"></div>
+          <div className="mountain mountain-3"></div>
+        </div>
+      </div>
 
-      <Container className="d-flex align-items-center justify-content-center min-vh-100 py-5">
+      <Container className="d-flex align-items-start justify-content-center py-5" style={{ minHeight: 'calc(100vh - 80px)', paddingTop: '120px' }}>
         <Row className="justify-content-center w-100">
-          <Col md={8} lg={6}>
-            <Card className="auth-card border-0 shadow-lg">
+          <Col md={9} lg={8} xl={7}>
+            <Card className="modern-auth-card">
               <Card.Body className="p-5">
                 <div className="text-center mb-4">
-                  <div className="mb-3">
-                    <div style={{
-                      width: '60px',
-                      height: '60px',
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      borderRadius: '50%',
-                      margin: '0 auto',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '24px',
-                      color: 'white',
-                      boxShadow: '0 10px 25px rgba(102, 126, 234, 0.3)'
-                    }}>
-                      🚀
-                    </div>
-                  </div>
-                  <h2 className="fw-bold text-dark mb-2">Kayıt Olun</h2>
-                  <p className="text-muted mb-0">Destek Platformu'na katılın ve başlayın</p>
+                  <h1 className="modern-title mb-3">KAYIT OLUN</h1>
+                  <p className="modern-subtitle">Destek Platformu'na kayıt olun</p>
+                </div>
+
+                {/* Toggle Buttons */}
+                <div className="d-flex gap-2 mb-4">
+                  <Link to="/login" className="modern-toggle-btn">
+                    GİRİŞ YAPIN
+                  </Link>
+                  <Link to="/register" className="modern-toggle-btn active">
+                    KAYIT OLUN
+                  </Link>
                 </div>
 
                 <Form onSubmit={handleSubmit}>
@@ -118,63 +122,55 @@ const Register = () => {
                   )}
 
                   <Form.Group className="mb-3">
-                    <Form.Label className="fw-medium text-dark">Ad Soyad</Form.Label>
                     <Form.Control
                       type="text"
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      placeholder="Adınız ve soyadınız"
-                      className="auth-input border-0"
-                      style={{ fontSize: '16px' }}
+                      placeholder="Adınız Soyadınız*"
+                      className="modern-input"
                     />
                   </Form.Group>
 
                   <Form.Group className="mb-3">
-                    <Form.Label className="fw-medium text-dark">E-posta Adresi</Form.Label>
                     <Form.Control
                       type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      placeholder="ornek@email.com"
-                      className="auth-input border-0"
-                      style={{ fontSize: '16px' }}
+                      placeholder="Email Adresiniz*"
+                      className="modern-input"
                     />
                   </Form.Group>
 
                   <Row>
                     <Col md={6}>
                       <Form.Group className="mb-3">
-                        <Form.Label className="fw-medium text-dark">Şifre</Form.Label>
                         <Form.Control
                           type="password"
                           name="password"
                           value={formData.password}
                           onChange={handleChange}
                           required
-                          placeholder="En az 6 karakter"
+                          placeholder="Şifreniz*"
                           minLength={6}
-                          className="auth-input border-0"
-                          style={{ fontSize: '16px' }}
+                          className="modern-input"
                         />
                       </Form.Group>
                     </Col>
                     <Col md={6}>
                       <Form.Group className="mb-3">
-                        <Form.Label className="fw-medium text-dark">Şifre Tekrar</Form.Label>
                         <Form.Control
                           type="password"
                           name="confirmPassword"
                           value={formData.confirmPassword}
                           onChange={handleChange}
                           required
-                          placeholder="Şifrenizi tekrar girin"
+                          placeholder="Şifrenizi Tekrar Giriniz*"
                           minLength={6}
-                          className="auth-input border-0"
-                          style={{ fontSize: '16px' }}
+                          className="modern-input"
                         />
                       </Form.Group>
                     </Col>
@@ -185,7 +181,7 @@ const Register = () => {
                     <div className="d-flex gap-4">
                       <Form.Check
                         type="radio"
-                        id="student"
+                        id="user"
                         name="role"
                         value="user"
                         checked={formData.role === 'user'}
@@ -260,9 +256,8 @@ const Register = () => {
                   <Button 
                     variant="primary" 
                     type="submit" 
-                    className="auth-btn w-100 py-3 mb-3 text-white fw-bold"
+                    className="modern-btn w-100 py-3 mb-3"
                     disabled={loading}
-                    style={{ fontSize: '16px' }}
                   >
                     {loading ? (
                       <div className="d-flex align-items-center justify-content-center">
@@ -270,18 +265,15 @@ const Register = () => {
                         Kayıt oluşturuluyor...
                       </div>
                     ) : (
-                      'Hesap Oluştur'
+                      'Kayıt Ol'
                     )}
                   </Button>
                 </Form>
 
-                <div className="text-center pt-3 border-top">
-                  <p className="text-muted mb-0">
-                    Zaten hesabınız var mı?{' '}
-                    <Link to="/login" className="auth-link fw-medium">
-                      Giriş yapın
-                    </Link>
-                  </p>
+                <div className="text-center pt-3">
+                  <Link to="/login" className="modern-forgot-link">
+                    Zaten hesabınız var mı? Giriş yapın
+                  </Link>
                 </div>
               </Card.Body>
             </Card>
