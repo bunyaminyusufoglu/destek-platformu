@@ -57,6 +57,31 @@ router.get("/", authMiddleware, async (req, res) => {
   }
 });
 
+// Kullanıcının kendi taleplerini getir
+router.get("/my-requests", authMiddleware, async (req, res) => {
+  try {
+    const requests = await SupportRequest.find({ user: req.user.id })
+      .populate("user", "name email")
+      .populate("expert", "name email")
+      .sort({ createdAt: -1 });
+    
+    // Her talebe teklif sayısını ekle
+    const requestsWithOfferCount = await Promise.all(
+      requests.map(async (request) => {
+        const offerCount = await Offer.countDocuments({ supportRequest: request._id });
+        return {
+          ...request.toObject(),
+          offerCount
+        };
+      })
+    );
+    
+    res.json(requestsWithOfferCount);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Tekil talep getir
 router.get("/:id", authMiddleware, validateObjectId("id"), async (req, res) => {
   try {

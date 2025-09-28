@@ -9,6 +9,7 @@ const router = express.Router();
 // Register
 router.post("/register", validate(registerSchema), async (req, res) => {
   try {
+    console.log('Register request body:', req.body);
     const { isUser, isExpert, name, email, password, skills } = req.body;
 
     // Email kontrol

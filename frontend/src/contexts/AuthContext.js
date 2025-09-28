@@ -57,7 +57,8 @@ export const AuthProvider = ({ children }) => {
       
       return response;
     } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Kayıt sırasında hata oluştu';
+      console.log('AuthContext register error:', err.response?.data);
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || 'Kayıt sırasında hata oluştu';
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {

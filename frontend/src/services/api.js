@@ -85,6 +85,12 @@ export const supportAPI = {
     const response = await api.delete(`/support/${id}`);
     return response.data;
   },
+
+  // Kullanıcının kendi taleplerini getir
+  getMyRequests: async () => {
+    const response = await api.get('/support/my-requests');
+    return response.data;
+  },
 };
 
 // Offer API functions

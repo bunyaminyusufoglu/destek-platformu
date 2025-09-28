@@ -1,10 +1,15 @@
-import React from 'react';
-import Navigation from './Navigation';
+import React, { useEffect } from 'react';
+import Sidebar from './Sidebar';
 
 const Layout = ({ children }) => {
+  useEffect(() => {
+    // Her sayfa değişiminde en üste scroll et
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="layout-container">
-      <Navigation />
+      <Sidebar />
       <main className="main-content">
         {children}
       </main>

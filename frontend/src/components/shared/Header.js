@@ -1,8 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Container, Navbar, Nav, Button } from 'react-bootstrap';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Header = () => {
+  const { isAuthenticated } = useAuth();
+
+  // Giriş yapmış kullanıcılar için header gösterme
+  if (isAuthenticated) {
+    return null;
+  }
+
   return (
     <Navbar expand="lg" className="main-header">
       <Container>

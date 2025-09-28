@@ -63,14 +63,17 @@ const Register = () => {
     }
 
     try {
-      const { confirmPassword, ...registerData } = formData;
+      const { confirmPassword, role, ...registerData } = formData;
       // Role göre isUser ve isExpert ayarla
-      registerData.isUser = formData.role === 'user';
-      registerData.isExpert = formData.role === 'expert';
-      registerData.isAdmin = false; // Admin sadece manuel olarak oluşturulur
+      registerData.isUser = role === 'user';
+      registerData.isExpert = role === 'expert';
+      // isAdmin alanını gönderme (backend'de forbidden)
+      
+      console.log('Gönderilen data:', registerData);
       await register(registerData);
       window.location.href = '/dashboard';
     } catch (err) {
+      console.error('Register error:', err);
       setError(err.message);
     } finally {
       setLoading(false);

@@ -7,6 +7,8 @@ import Register from './components/auth/Register';
 import Dashboard from './components/shared/Dashboard';
 import ProtectedRoute from './components/shared/ProtectedRoute';
 import Layout from './components/shared/Layout';
+import SupportRequestForm from './components/user/SupportRequestForm';
+import MyRequests from './components/user/MyRequests';
 
 // Public Route Component (sadece giriş yapmamış kullanıcılar)
 const PublicRoute = ({ children }) => {
@@ -51,6 +53,26 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <Dashboard />
+                  </Layout>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/create-request" 
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <SupportRequestForm />
+                  </Layout>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/my-requests" 
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <MyRequests />
                   </Layout>
                 </ProtectedRoute>
               } 
