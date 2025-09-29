@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Row, Col, ListGroup, Form, Button, Badge, Spinner } from 'react-bootstrap';
 import { messageAPI } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Messages = () => {
+  const { user } = useAuth();
   const [conversations, setConversations] = useState([]);
   const [selectedConversationId, setSelectedConversationId] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -12,6 +14,14 @@ const Messages = () => {
   const [newMessage, setNewMessage] = useState('');
 
   const chatEndRef = useRef(null);
+
+  const isMessageMine = useCallback((msg) => {
+    if (!msg) return false;
+    if (typeof msg.isMine === 'boolean') return msg.isMine;
+    const myId = user?._id || user?.id;
+    const senderId = msg.sender?._id || msg.senderId || msg.userId;
+    return myId && senderId && String(myId) === String(senderId);
+  }, [user]);
 
   const selectedConversation = useMemo(
     () => conversations.find(c => c._id === selectedConversationId) || null,
@@ -47,6 +57,8 @@ const Messages = () => {
       setLoadingMessages(true);
       const data = await messageAPI.getConversation(conversationId, 1, 100);
       setMessages(Array.isArray(data) ? data : data?.messages || []);
+      // Okundu işaretle (sessizce)
+      try { await messageAPI.markAllAsRead(conversationId); } catch (_) {}
     } catch (err) {
       console.error('Mesajlar yüklenemedi:', err);
     } finally {
@@ -84,8 +96,17 @@ const Messages = () => {
     loadMessages(selectedConversationId);
   }, [selectedConversationId, loadMessages]);
 
+  // Lightweight polling for new messages
+  useEffect(() => {
+    if (!selectedConversationId) return;
+    const interval = setInterval(() => {
+      loadMessages(selectedConversationId);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [selectedConversationId, loadMessages]);
+
   return (
-    <div className="container-fluid main-content">
+    <div className="container-fluid mt-5">
       <Row>
         <Col lg={4} className="mb-3">
           <div className="card shadow-sm h-100">
@@ -108,7 +129,7 @@ const Messages = () => {
                   >
                     <div>
                       <div className="fw-semibold">{conv.title || conv.subject || 'Sohbet'}</div>
-                      <div className="small text-muted">{conv.lastMessage?.content?.slice(0, 48) || 'Henüz mesaj yok'}</div>
+                      <div className="small text-muted">{conv.lastMessage?.content ? String(conv.lastMessage.content).slice(0, 48) : 'Henüz mesaj yok'}</div>
                     </div>
                     {conv.unreadCount > 0 && (
                       <Badge bg="primary" pill>{conv.unreadCount}</Badge>
@@ -130,11 +151,11 @@ const Messages = () => {
                 <div className="text-muted">Bu konuşmada mesaj yok.</div>
               )}
               {messages.map((msg) => (
-                <div key={msg._id} className={`d-flex mb-3 ${msg.isMine ? 'justify-content-end' : 'justify-content-start'}`}>
-                  <div className={`p-2 rounded ${msg.isMine ? 'bg-primary text-white' : 'bg-light'}`} style={{ maxWidth: '75%' }}>
-                    <div className="mb-1" style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</div>
+                <div key={msg._id || msg.id} className={`d-flex mb-3 ${isMessageMine(msg) ? 'justify-content-end' : 'justify-content-start'}`}>
+                  <div className={`p-2 rounded ${isMessageMine(msg) ? 'bg-primary text-white' : 'bg-light'}`} style={{ maxWidth: '75%' }}>
+                    <div className="mb-1" style={{ whiteSpace: 'pre-wrap' }}>{String(msg.content || '')}</div>
                     <div className="small text-muted" style={{ opacity: 0.8 }}>
-                      {new Date(msg.createdAt).toLocaleString()}
+                      {msg.createdAt ? new Date(msg.createdAt).toLocaleString() : ''}
                     </div>
                   </div>
                 </div>
@@ -149,7 +170,7 @@ const Messages = () => {
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                 />
-                <Button type="submit" disabled={sending || !selectedConversationId}>
+                <Button type="submit" disabled={sending || !selectedConversationId || !newMessage.trim()}>
                   {sending ? 'Gönderiliyor...' : 'Gönder'}
                 </Button>
               </Form>
