@@ -126,7 +126,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="dashboard-container">
+    <div>
       <Container fluid className="py-4">
         {error && (
           <Alert variant="danger" className="mb-4">
@@ -326,10 +326,10 @@ const Dashboard = () => {
                       👑 Admin Paneli
                     </Button>
                   )}
-                  <Button variant="info" className="flex-fill flex-md-grow-0">
+                  <Button variant="info" className="flex-fill flex-md-grow-0" as={Link} to="/messages">
                     💬 Mesajlarım
                   </Button>
-                  <Button variant="outline-secondary" className="flex-fill flex-md-grow-0">
+                  <Button variant="outline-secondary" className="flex-fill flex-md-grow-0" as={Link} to="/settings">
                     👤 Profilimi Düzenle
                   </Button>
                 </div>

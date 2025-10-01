@@ -192,7 +192,7 @@ const MyRequests = () => {
               </div>
               <Button 
                 variant="primary" 
-                size="lg"
+                size="md" 
                 onClick={() => window.location.href = '/create-request'}
               >
                 ➕ Yeni Talep Oluştur
@@ -218,7 +218,7 @@ const MyRequests = () => {
               <p className="text-muted mb-4">İlk destek talebinizi oluşturmak için aşağıdaki butona tıklayın.</p>
               <Button 
                 variant="primary" 
-                size="lg"
+                size="md"
                 onClick={() => window.location.href = '/create-request'}
               >
                 🚀 İlk Talebimi Oluştur

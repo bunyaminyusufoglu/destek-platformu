@@ -29,7 +29,7 @@ const Header = () => {
               Giriş Yap
             </Nav.Link>
             <Nav.Link as={Link} to="/register" className="nav-link-custom">
-              <Button variant="primary" size="sm" className="register-btn">
+              <Button size="sm" className="register-btn">
                 Kayıt Ol
               </Button>
             </Nav.Link>

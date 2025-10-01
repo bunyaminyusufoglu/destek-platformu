@@ -6,6 +6,7 @@ import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Dashboard from './components/shared/Dashboard';
 import Messages from './components/shared/Messages';
+import Settings from './components/shared/Settings';
 import ProtectedRoute from './components/shared/ProtectedRoute';
 import Layout from './components/shared/Layout';
 import SupportRequestForm from './components/user/SupportRequestForm';
@@ -74,6 +75,16 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <MyRequests />
+                  </Layout>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/settings" 
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Settings />
                   </Layout>
                 </ProtectedRoute>
               } 

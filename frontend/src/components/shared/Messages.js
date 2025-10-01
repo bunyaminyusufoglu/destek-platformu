@@ -146,15 +146,15 @@ const Messages = () => {
               <strong>{selectedConversation?.title || selectedConversation?.subject || 'Sohbet'}</strong>
               {loadingMessages && <Spinner size="sm" animation="border" />}
             </div>
-            <div className="card-body" style={{ maxHeight: 520, overflowY: 'auto' }}>
+            <div className="card-body chat-body">
               {messages.length === 0 && !loadingMessages && (
                 <div className="text-muted">Bu konuşmada mesaj yok.</div>
               )}
               {messages.map((msg) => (
                 <div key={msg._id || msg.id} className={`d-flex mb-3 ${isMessageMine(msg) ? 'justify-content-end' : 'justify-content-start'}`}>
-                  <div className={`p-2 rounded ${isMessageMine(msg) ? 'bg-primary text-white' : 'bg-light'}`} style={{ maxWidth: '75%' }}>
+                  <div className={`chat-bubble ${isMessageMine(msg) ? 'mine' : 'theirs'}`}>
                     <div className="mb-1" style={{ whiteSpace: 'pre-wrap' }}>{String(msg.content || '')}</div>
-                    <div className="small text-muted" style={{ opacity: 0.8 }}>
+                    <div className="chat-meta text-muted">
                       {msg.createdAt ? new Date(msg.createdAt).toLocaleString() : ''}
                     </div>
                   </div>

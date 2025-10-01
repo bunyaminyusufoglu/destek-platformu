@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert, InputGroup } from 'react-bootstrap';
-import { useAuth } from '../../contexts/AuthContext';
+// import { useAuth } from '../../contexts/AuthContext';
 import { supportAPI } from '../../services/api';
 
 const SupportRequestForm = () => {
-  const { } = useAuth();
+  // const { user } = useAuth();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -76,10 +76,22 @@ const SupportRequestForm = () => {
     setSuccess('');
 
     try {
+      // Deadline gelecekte olmalı (bugün seçildiyse engelle)
+      const now = new Date();
+      const selected = formData.deadline ? new Date(formData.deadline) : null;
+      if (!selected || selected <= now) {
+        setError('Teslim tarihi bugünden ileri bir tarih olmalıdır.');
+        setLoading(false);
+        return;
+      }
+
+      // Backend'in beklediği alanları gönder
       const requestData = {
-        ...formData,
+        title: formData.title,
+        description: formData.description,
         budget: parseFloat(formData.budget),
-        deadline: new Date(formData.deadline)
+        deadline: new Date(formData.deadline).toISOString(),
+        skills: Array.isArray(formData.skills) ? formData.skills : []
       };
 
       await supportAPI.createRequest(requestData);
@@ -96,7 +108,11 @@ const SupportRequestForm = () => {
         priority: 'medium'
       });
     } catch (err) {
-      setError(err.response?.data?.message || 'Destek talebi oluşturulurken hata oluştu');
+      setError(
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        'Destek talebi oluşturulurken hata oluştu'
+      );
     } finally {
       setLoading(false);
     }
@@ -238,7 +254,7 @@ const SupportRequestForm = () => {
                           value={formData.deadline}
                           onChange={handleChange}
                           required
-                          min={new Date().toISOString().split('T')[0]}
+                          min={(() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split('T')[0]; })()}
                           className="form-control-lg"
                         />
                       </Form.Group>
