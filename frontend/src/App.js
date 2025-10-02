@@ -7,6 +7,8 @@ import Register from './components/auth/Register';
 import Dashboard from './components/shared/Dashboard';
 import Messages from './components/shared/Messages';
 import Settings from './components/shared/Settings';
+import AvailableRequests from './components/expert/AvailableRequests';
+import MyOffers from './components/expert/MyOffers';
 import ProtectedRoute from './components/shared/ProtectedRoute';
 import Layout from './components/shared/Layout';
 import SupportRequestForm from './components/user/SupportRequestForm';
@@ -85,6 +87,26 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <Settings />
+                  </Layout>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/available-requests" 
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <AvailableRequests />
+                  </Layout>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/my-offers" 
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <MyOffers />
                   </Layout>
                 </ProtectedRoute>
               } 

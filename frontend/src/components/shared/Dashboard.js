@@ -317,7 +317,7 @@ const Dashboard = () => {
                     </Button>
                   )}
                   {(user.isExpert || user.isAdmin) && (
-                    <Button variant="success" className="flex-fill flex-md-grow-0">
+                    <Button variant="success" className="flex-fill flex-md-grow-0" as={Link} to="/available-requests">
                       🔍 Açık Talepleri Görüntüle
                     </Button>
                   )}
