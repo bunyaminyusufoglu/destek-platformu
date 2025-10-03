@@ -12,6 +12,7 @@ const Dashboard = () => {
     totalRequests: 0,
     myRequests: 0,
     myOffers: 0,
+    incomingOffers: 0,
     unreadMessages: 0
   });
   const [recentRequests, setRecentRequests] = useState([]);
@@ -27,10 +28,24 @@ const Dashboard = () => {
         // Sadece kendi taleplerini getir
         const myRequests = await supportAPI.getMyRequests();
         setRecentRequests(myRequests.slice(0, 5));
+        
+        // Gelen teklifleri hesapla
+        const requestIds = myRequests.map(req => req._id);
+        let incomingOffersCount = 0;
+        for (const requestId of requestIds) {
+          try {
+            const requestOffers = await offerAPI.getRequestOffers(requestId);
+            incomingOffersCount += requestOffers.length;
+          } catch (err) {
+            // Hata durumunda devam et
+          }
+        }
+        
         setStats(prev => ({
           ...prev,
           totalRequests: myRequests.length,
-          myRequests: myRequests.length
+          myRequests: myRequests.length,
+          incomingOffers: incomingOffersCount
         }));
       } else {
         // Uzman/Admin için tüm talepleri getir
@@ -138,16 +153,28 @@ const Dashboard = () => {
         {/* Stats Cards */}
         <Row className="mb-4">
           {user.isUser ? (
-            // Kullanıcı için sadece kendi talepleri
-            <Col xs={6} md={3} className="mb-3">
-              <Card className="h-100 border-0 shadow-sm">
-                <Card.Body className="text-center">
-                  <div className="display-6 text-primary mb-2">📝</div>
-                  <h3 className="h4 mb-1">{stats.myRequests}</h3>
-                  <p className="text-muted mb-0">Taleplerim</p>
-                </Card.Body>
-              </Card>
-            </Col>
+            // Kullanıcı için kendi talepleri ve gelen teklifleri
+            <>
+              <Col xs={6} md={3} className="mb-3">
+                <Card className="h-100 border-0 shadow-sm">
+                  <Card.Body className="text-center">
+                    <div className="display-6 text-primary mb-2">📝</div>
+                    <h3 className="h4 mb-1">{stats.myRequests}</h3>
+                    <p className="text-muted mb-0">Taleplerim</p>
+                  </Card.Body>
+                </Card>
+              </Col>
+              
+              <Col xs={6} md={3} className="mb-3">
+                <Card className="h-100 border-0 shadow-sm">
+                  <Card.Body className="text-center">
+                    <div className="display-6 text-success mb-2">📨</div>
+                    <h3 className="h4 mb-1">{stats.incomingOffers}</h3>
+                    <p className="text-muted mb-0">Gelen Teklifler</p>
+                  </Card.Body>
+                </Card>
+              </Col>
+            </>
           ) : (
             // Uzman/Admin için tüm talepler
             <>

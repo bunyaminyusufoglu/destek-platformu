@@ -34,7 +34,8 @@ const Sidebar = () => {
     // Kullanıcı için sadece kendi talepleri
     if (isUser) {
       items.push(
-        { path: '/my-requests', label: 'Taleplerim', icon: '📋' }
+        { path: '/my-requests', label: 'Taleplerim', icon: '📋' },
+        { path: '/incoming-offers', label: 'Gelen Teklifler', icon: '📨' }
       );
     }
     

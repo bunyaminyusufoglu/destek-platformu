@@ -9,6 +9,7 @@ import Messages from './components/shared/Messages';
 import Settings from './components/shared/Settings';
 import AvailableRequests from './components/expert/AvailableRequests';
 import MyOffers from './components/expert/MyOffers';
+import IncomingOffers from './components/user/IncomingOffers';
 import ProtectedRoute from './components/shared/ProtectedRoute';
 import Layout from './components/shared/Layout';
 import SupportRequestForm from './components/user/SupportRequestForm';
@@ -107,6 +108,16 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <MyOffers />
+                  </Layout>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/incoming-offers" 
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <IncomingOffers />
                   </Layout>
                 </ProtectedRoute>
               } 
