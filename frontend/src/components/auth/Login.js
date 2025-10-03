@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { useAuth } from '../../contexts/AuthContext';
+import { FaExclamationTriangle } from 'react-icons/fa';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -77,7 +78,7 @@ const Login = () => {
                   {error && (
                     <Alert variant="danger" className="mb-3">
                       <div className="d-flex align-items-center">
-                        <span className="me-2">⚠️</span>
+                        <FaExclamationTriangle className="me-2" />
                         {error}
                       </div>
                     </Alert>

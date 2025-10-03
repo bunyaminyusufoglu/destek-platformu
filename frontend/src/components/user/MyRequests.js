@@ -1,10 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Alert, Spinner, Modal, Form } from 'react-bootstrap';
-import { useAuth } from '../../contexts/AuthContext';
 import { supportAPI } from '../../services/api';
+import { 
+  FaFileAlt, 
+  FaExclamationTriangle, 
+  FaEdit, 
+  FaTrash, 
+  FaTools, 
+  FaDollarSign, 
+  FaHandshake 
+} from 'react-icons/fa';
 
 const MyRequests = () => {
-  const { } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [requests, setRequests] = useState([]);
@@ -68,8 +75,8 @@ const MyRequests = () => {
   const getStatusBadge = (status) => {
     const statusConfig = {
       open: { variant: 'success', text: 'Açık', icon: '🔓' },
-      assigned: { variant: 'primary', text: 'Atanmış', icon: '👤' },
-      in_progress: { variant: 'warning', text: 'Devam Ediyor', icon: '⚡' },
+      assigned: { variant: 'primary', text: 'Atanmış', icon: <FaTools /> },
+      in_progress: { variant: 'warning', text: 'Devam Ediyor', icon: <FaTools /> },
       completed: { variant: 'secondary', text: 'Tamamlandı', icon: '✅' },
       cancelled: { variant: 'danger', text: 'İptal', icon: '❌' }
     };
@@ -187,7 +194,7 @@ const MyRequests = () => {
           <Col>
             <div className="d-flex justify-content-between align-items-center">
               <div>
-                <h2 className="mb-1">📋 Destek Taleplerim</h2>
+                <h2 className="mb-1"><FaFileAlt className="me-2" />Destek Taleplerim</h2>
                 <p className="text-muted mb-0">Oluşturduğunuz destek taleplerini yönetin</p>
               </div>
               <Button 
@@ -204,7 +211,7 @@ const MyRequests = () => {
         {error && (
           <Alert variant="danger" className="mb-4">
             <div className="d-flex align-items-center">
-              <span className="me-2">⚠️</span>
+              <FaExclamationTriangle className="me-2" />
               {error}
             </div>
           </Alert>
@@ -213,7 +220,7 @@ const MyRequests = () => {
         {requests.length === 0 ? (
           <Card className="border-0 shadow-sm">
             <Card.Body className="text-center py-5">
-              <div className="display-1 text-muted mb-3">📝</div>
+              <FaFileAlt className="display-1 text-muted mb-3" />
               <h4 className="text-muted mb-3">Henüz destek talebiniz yok</h4>
               <p className="text-muted mb-4">İlk destek talebinizi oluşturmak için aşağıdaki butona tıklayın.</p>
               <Button 
@@ -257,7 +264,7 @@ const MyRequests = () => {
 
                       {request.skills && request.skills.length > 0 && (
                         <div className="mb-3">
-                          <small className="text-muted d-block">🛠️ Gerekli Yetenekler</small>
+                          <small className="text-muted d-block"><FaTools className="me-1" />Gerekli Yetenekler</small>
                           <div className="d-flex flex-wrap gap-1">
                             {request.skills.slice(0, 3).map((skill, index) => (
                               <Badge key={index} bg="info" className="small">
@@ -275,7 +282,7 @@ const MyRequests = () => {
 
                       <div className="row g-2 mb-3">
                         <div className="col-6">
-                          <small className="text-muted d-block">💰 Bütçe</small>
+                          <small className="text-muted d-block"><FaDollarSign className="me-1" />Bütçe</small>
                           <strong className="text-success">{request.budget}₺</strong>
                         </div>
                         <div className="col-6">
@@ -286,7 +293,7 @@ const MyRequests = () => {
 
                       <div className="row g-2">
                         <div className="col-6">
-                          <small className="text-muted d-block">💼 Teklifler</small>
+                          <small className="text-muted d-block"><FaHandshake className="me-1" />Teklifler</small>
                           <strong className="text-primary">{request.offerCount || 0}</strong>
                         </div>
                         <div className="col-6">
@@ -304,7 +311,8 @@ const MyRequests = () => {
                           className="flex-fill"
                           onClick={() => handleEdit(request)}
                         >
-                          ✏️ Düzenle
+                          <FaEdit className="me-1" />
+                          Düzenle
                         </Button>
                         <Button 
                           variant="outline-danger" 
@@ -312,7 +320,8 @@ const MyRequests = () => {
                           className="flex-fill"
                           onClick={() => handleDelete(request._id)}
                         >
-                          🗑️ Sil
+                          <FaTrash className="me-1" />
+                          Sil
                         </Button>
                       </div>
                     </div>
@@ -326,7 +335,7 @@ const MyRequests = () => {
         {/* Edit Modal */}
         <Modal show={showEditModal} onHide={() => setShowEditModal(false)} size="lg">
           <Modal.Header closeButton>
-            <Modal.Title>✏️ Destek Talebini Düzenle</Modal.Title>
+            <Modal.Title><FaEdit className="me-2" />Destek Talebini Düzenle</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form>

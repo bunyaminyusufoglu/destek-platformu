@@ -3,6 +3,18 @@ import { Container, Row, Col, Card, Button, Badge, Alert, Spinner } from 'react-
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { supportAPI, offerAPI, messageAPI } from '../../services/api';
+import { 
+  FaFileAlt, 
+  FaInbox, 
+  FaClipboardList, 
+  FaHandshake, 
+  FaComments, 
+  FaPlus,
+  FaEye,
+  FaClock,
+  FaDollarSign,
+  FaUser
+} from 'react-icons/fa';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -156,9 +168,9 @@ const Dashboard = () => {
             // Kullanıcı için kendi talepleri ve gelen teklifleri
             <>
               <Col xs={6} md={3} className="mb-3">
-                <Card className="h-100 border-0 shadow-sm">
+                <Card as={Link} to="/my-requests" className="h-100 border-0 shadow-sm text-decoration-none" style={{ cursor: 'pointer' }}>
                   <Card.Body className="text-center">
-                    <div className="display-6 text-primary mb-2">📝</div>
+                    <FaFileAlt className="display-6 text-primary mb-2" />
                     <h3 className="h4 mb-1">{stats.myRequests}</h3>
                     <p className="text-muted mb-0">Taleplerim</p>
                   </Card.Body>
@@ -166,9 +178,9 @@ const Dashboard = () => {
               </Col>
               
               <Col xs={6} md={3} className="mb-3">
-                <Card className="h-100 border-0 shadow-sm">
+                <Card as={Link} to="/incoming-offers" className="h-100 border-0 shadow-sm text-decoration-none" style={{ cursor: 'pointer' }}>
                   <Card.Body className="text-center">
-                    <div className="display-6 text-success mb-2">📨</div>
+                    <FaInbox className="display-6 text-success mb-2" />
                     <h3 className="h4 mb-1">{stats.incomingOffers}</h3>
                     <p className="text-muted mb-0">Gelen Teklifler</p>
                   </Card.Body>
@@ -179,9 +191,9 @@ const Dashboard = () => {
             // Uzman/Admin için tüm talepler
             <>
               <Col xs={6} md={3} className="mb-3">
-                <Card className="h-100 border-0 shadow-sm">
+                <Card as={Link} to="/support-requests" className="h-100 border-0 shadow-sm text-decoration-none" style={{ cursor: 'pointer' }}>
                   <Card.Body className="text-center">
-                    <div className="display-6 text-primary mb-2">📋</div>
+                    <FaClipboardList className="display-6 text-primary mb-2" />
                     <h3 className="h4 mb-1">{stats.totalRequests}</h3>
                     <p className="text-muted mb-0">Toplam Talep</p>
                   </Card.Body>
@@ -189,9 +201,9 @@ const Dashboard = () => {
               </Col>
               
               <Col xs={6} md={3} className="mb-3">
-                <Card className="h-100 border-0 shadow-sm">
+                <Card as={Link} to="/my-requests" className="h-100 border-0 shadow-sm text-decoration-none" style={{ cursor: 'pointer' }}>
                   <Card.Body className="text-center">
-                    <div className="display-6 text-success mb-2">📝</div>
+                    <FaFileAlt className="display-6 text-success mb-2" />
                     <h3 className="h4 mb-1">{stats.myRequests}</h3>
                     <p className="text-muted mb-0">Benim Taleplerim</p>
                   </Card.Body>
@@ -202,9 +214,9 @@ const Dashboard = () => {
 
           {(user.isExpert || user.isAdmin) && (
             <Col xs={6} md={3} className="mb-3">
-              <Card className="h-100 border-0 shadow-sm">
+              <Card as={Link} to="/my-offers" className="h-100 border-0 shadow-sm text-decoration-none" style={{ cursor: 'pointer' }}>
                 <Card.Body className="text-center">
-                  <div className="display-6 text-warning mb-2">💼</div>
+                  <FaHandshake className="display-6 text-warning mb-2" />
                   <h3 className="h4 mb-1">{stats.myOffers}</h3>
                   <p className="text-muted mb-0">Gönderdiğim Teklifler</p>
                 </Card.Body>
@@ -213,9 +225,9 @@ const Dashboard = () => {
           )}
 
           <Col xs={6} md={3} className="mb-3">
-            <Card className="h-100 border-0 shadow-sm">
+            <Card as={Link} to="/messages" className="h-100 border-0 shadow-sm text-decoration-none" style={{ cursor: 'pointer' }}>
               <Card.Body className="text-center">
-                <div className="display-6 text-info mb-2">💬</div>
+                <FaComments className="display-6 text-info mb-2" />
                 <h3 className="h4 mb-1">{stats.unreadMessages}</h3>
                 <p className="text-muted mb-0">Okunmamış Mesaj</p>
               </Card.Body>
@@ -229,7 +241,7 @@ const Dashboard = () => {
             <Card className="border-0 shadow-sm">
               <Card.Header className="bg-white border-bottom">
                 <h5 className="mb-0">
-                  {user.isUser ? '📋 Son Taleplerim' : '📋 Son Destek Talepleri'}
+                  {user.isUser ? <><FaClipboardList className="me-2" />Son Taleplerim</> : <><FaClipboardList className="me-2" />Son Destek Talepleri</>}
                 </h5>
               </Card.Header>
               <Card.Body>
@@ -250,11 +262,11 @@ const Dashboard = () => {
                             <div className="d-flex align-items-center gap-3">
                               {!user.isUser && (
                                 <small className="text-muted">
-                                  👤 {request.user.name}
+                                  <FaUser className="me-1" />{request.user.name}
                                 </small>
                               )}
                               <small className="text-muted">
-                                💰 {request.budget}₺
+                                <FaDollarSign className="me-1" />{request.budget}₺
                               </small>
                               <small className="text-muted">
                                 📅 {formatDate(request.deadline)}
@@ -283,7 +295,7 @@ const Dashboard = () => {
             <Col>
               <Card className="border-0 shadow-sm">
                 <Card.Header className="bg-white border-bottom">
-                  <h5 className="mb-0">💼 Son Tekliflerim</h5>
+                  <h5 className="mb-0">Son Tekliflerim</h5>
                 </Card.Header>
                 <Card.Body>
                   {recentOffers.length === 0 ? (
@@ -300,10 +312,12 @@ const Dashboard = () => {
                               </p>
                               <div className="d-flex align-items-center gap-3">
                                 <small className="text-muted">
-                                  💰 {offer.proposedPrice}₺
+                                  <FaDollarSign className="me-1" />
+                                  {offer.proposedPrice}₺
                                 </small>
                                 <small className="text-muted">
-                                  ⏱️ {offer.estimatedDuration}
+                                  <FaClock className="me-1" />
+                                  {offer.estimatedDuration}
                                 </small>
                                 {getOfferStatusBadge(offer.status)}
                               </div>
@@ -329,7 +343,7 @@ const Dashboard = () => {
           <Col>
             <Card className="border-0 shadow-sm">
               <Card.Header className="bg-white border-bottom">
-                <h5 className="mb-0">⚡ Hızlı İşlemler</h5>
+                <h5 className="mb-0">Hızlı İşlemler</h5>
               </Card.Header>
               <Card.Body>
                 <div className="d-flex gap-3 flex-wrap">
@@ -340,24 +354,28 @@ const Dashboard = () => {
                       as={Link}
                       to="/create-request"
                     >
-                      📝 Yeni Destek Talebi Oluştur
+                      <FaPlus className="me-2" />
+                      Yeni Destek Talebi Oluştur
                     </Button>
                   )}
                   {(user.isExpert || user.isAdmin) && (
                     <Button variant="success" className="flex-fill flex-md-grow-0" as={Link} to="/available-requests">
-                      🔍 Açık Talepleri Görüntüle
+                      <FaEye className="me-2" />
+                      Açık Talepleri Görüntüle
                     </Button>
                   )}
                   {user.isAdmin && (
                     <Button variant="warning" className="flex-fill flex-md-grow-0">
-                      👑 Admin Paneli
+                      Admin Paneli
                     </Button>
                   )}
                   <Button variant="info" className="flex-fill flex-md-grow-0" as={Link} to="/messages">
-                    💬 Mesajlarım
+                    <FaComments className="me-2" />
+                    Mesajlarım
                   </Button>
                   <Button variant="outline-secondary" className="flex-fill flex-md-grow-0" as={Link} to="/settings">
-                    👤 Profilimi Düzenle
+                    <FaUser className="me-2" />
+                    Profilimi Düzenle
                   </Button>
                 </div>
               </Card.Body>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Container, Row, Col, Card, Badge, Alert, Spinner, Button, Modal } from 'react-bootstrap';
 import { offerAPI, supportAPI } from '../../services/api';
+import { FaDollarSign, FaClock } from 'react-icons/fa';
 
 const IncomingOffers = () => {
   const [offers, setOffers] = useState([]);
@@ -142,8 +143,8 @@ const IncomingOffers = () => {
                       {offer.message?.length > 140 ? `${offer.message.substring(0, 140)}...` : offer.message}
                     </p>
                     <div className="d-flex flex-wrap gap-3 small text-muted mb-3">
-                      <span>💰 {offer.proposedPrice}₺</span>
-                      <span>⏱️ {offer.estimatedDuration}</span>
+                      <span><FaDollarSign className="me-1" />{offer.proposedPrice}₺</span>
+                      <span><FaClock className="me-1" />{offer.estimatedDuration}</span>
                       <span>📅 {formatDate(offer.createdAt)}</span>
                     </div>
                     {offer.status === 'pending' && (

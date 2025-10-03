@@ -24,7 +24,11 @@ const Messages = () => {
   }, [user]);
 
   const selectedConversation = useMemo(
-    () => conversations.find(c => c._id === selectedConversationId) || null,
+    () => {
+      const found = conversations.find(c => c._id === selectedConversationId || c.conversationId === selectedConversationId);
+      console.log('Seçili konuşma:', found);
+      return found || null;
+    },
     [conversations, selectedConversationId]
   );
 
@@ -37,15 +41,33 @@ const Messages = () => {
   const loadConversations = useCallback(async () => {
     try {
       setLoadingConversations(true);
+      console.log('Konuşmalar yükleniyor...');
       const data = await messageAPI.getMyConversations();
-      setConversations(Array.isArray(data) ? data : data?.conversations || []);
+      console.log('Konuşmalar yüklendi:', data);
+      
+      // Backend'den gelen formatı kontrol et
+      let conversationsList = [];
+      if (Array.isArray(data)) {
+        conversationsList = data;
+      } else if (data?.conversations && Array.isArray(data.conversations)) {
+        conversationsList = data.conversations;
+      } else if (data && typeof data === 'object') {
+        // Backend doğrudan array döndürüyor olabilir
+        conversationsList = Array.isArray(data) ? data : [];
+      }
+      
+      console.log('İşlenen konuşmalar:', conversationsList);
+      setConversations(conversationsList);
+      
       // Auto-select first conversation
-      if (!selectedConversationId) {
-        const firstId = (Array.isArray(data) ? data : data?.conversations || [])[0]?._id;
+      if (!selectedConversationId && conversationsList.length > 0) {
+        const firstId = conversationsList[0]?._id || conversationsList[0]?.conversationId;
+        console.log('İlk konuşma seçiliyor:', firstId);
         if (firstId) setSelectedConversationId(firstId);
       }
     } catch (err) {
       console.error('Konuşmalar yüklenemedi:', err);
+      console.error('Hata detayı:', err.response?.data);
     } finally {
       setLoadingConversations(false);
     }
@@ -55,12 +77,15 @@ const Messages = () => {
     if (!conversationId) return;
     try {
       setLoadingMessages(true);
+      console.log('Mesajlar yükleniyor:', conversationId);
       const data = await messageAPI.getConversation(conversationId, 1, 100);
+      console.log('Mesajlar yüklendi:', data);
       setMessages(Array.isArray(data) ? data : data?.messages || []);
       // Okundu işaretle (sessizce)
       try { await messageAPI.markAllAsRead(conversationId); } catch (_) {}
     } catch (err) {
       console.error('Mesajlar yüklenemedi:', err);
+      console.error('Hata detayı:', err.response?.data);
     } finally {
       setLoadingMessages(false);
       // Slight delay to ensure DOM renders
@@ -73,12 +98,15 @@ const Messages = () => {
     if (!newMessage.trim() || !selectedConversationId) return;
     try {
       setSending(true);
+      console.log('Mesaj gönderiliyor:', { conversationId: selectedConversationId, content: newMessage.trim() });
       const sent = await messageAPI.sendMessage({ conversationId: selectedConversationId, content: newMessage.trim() });
-      setMessages(prev => [...prev, sent?.message || sent]);
+      console.log('Mesaj gönderildi:', sent);
+      setMessages(prev => [...prev, sent?.message || sent?.data || sent]);
       setNewMessage('');
       setTimeout(scrollToBottom, 50);
     } catch (err) {
       console.error('Mesaj gönderilemedi:', err);
+      console.error('Hata detayı:', err.response?.data);
     } finally {
       setSending(false);
     }
@@ -119,23 +147,29 @@ const Messages = () => {
                 <div className="p-3 text-muted">Konuşma bulunamadı.</div>
               )}
               <ListGroup variant="flush">
-                {conversations.map((conv) => (
-                  <ListGroup.Item
-                    key={conv._id}
-                    action
-                    onClick={() => setSelectedConversationId(conv._id)}
-                    active={selectedConversationId === conv._id}
-                    className="d-flex justify-content-between align-items-center"
-                  >
-                    <div>
-                      <div className="fw-semibold">{conv.title || conv.subject || 'Sohbet'}</div>
-                      <div className="small text-muted">{conv.lastMessage?.content ? String(conv.lastMessage.content).slice(0, 48) : 'Henüz mesaj yok'}</div>
-                    </div>
-                    {conv.unreadCount > 0 && (
-                      <Badge bg="primary" pill>{conv.unreadCount}</Badge>
-                    )}
-                  </ListGroup.Item>
-                ))}
+                {conversations.map((conv) => {
+                  const convId = conv._id || conv.conversationId;
+                  return (
+                    <ListGroup.Item
+                      key={convId}
+                      action
+                      onClick={() => {
+                        console.log('Konuşma seçiliyor:', conv);
+                        setSelectedConversationId(convId);
+                      }}
+                      active={selectedConversationId === convId}
+                      className="d-flex justify-content-between align-items-center"
+                    >
+                      <div>
+                        <div className="fw-semibold">{conv.supportRequest?.title || conv.title || conv.subject || 'Sohbet'}</div>
+                        <div className="small text-muted">{conv.lastMessage?.content ? String(conv.lastMessage.content).slice(0, 48) : 'Henüz mesaj yok'}</div>
+                      </div>
+                      {conv.unreadCount > 0 && (
+                        <Badge bg="primary" pill>{conv.unreadCount}</Badge>
+                      )}
+                    </ListGroup.Item>
+                  );
+                })}
               </ListGroup>
             </div>
           </div>

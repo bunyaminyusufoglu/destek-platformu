@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert, InputGroup } from 'react-bootstrap';
 // import { useAuth } from '../../contexts/AuthContext';
 import { supportAPI } from '../../services/api';
+import { FaFileAlt, FaExclamationTriangle } from 'react-icons/fa';
 
 const SupportRequestForm = () => {
   // const { user } = useAuth();
@@ -125,7 +126,7 @@ const SupportRequestForm = () => {
           <Col lg={8}>
             <Card className="border-0 shadow-sm">
               <Card.Header className="bg-white border-bottom">
-                <h4 className="mb-0">📝 Yeni Destek Talebi Oluştur</h4>
+                <h4 className="mb-0"><FaFileAlt className="me-2" />Yeni Destek Talebi Oluştur</h4>
                 <p className="text-muted mb-0 mt-2">Projenizi detaylı bir şekilde açıklayın, uzmanlar size yardımcı olmaya hazır!</p>
               </Card.Header>
               <Card.Body className="p-4">
@@ -133,7 +134,7 @@ const SupportRequestForm = () => {
                   {error && (
                     <Alert variant="danger" className="mb-4">
                       <div className="d-flex align-items-center">
-                        <span className="me-2">⚠️</span>
+                        <FaExclamationTriangle className="me-2" />
                         {error}
                       </div>
                     </Alert>

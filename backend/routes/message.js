@@ -143,7 +143,7 @@ router.get("/conversation/:conversationId", authMiddleware, validateObjectId("co
           status: supportRequest.status
         },
         participants: {
-          student: supportRequest.student,
+          user: supportRequest.user,
           expert: supportRequest.expert
         }
       }

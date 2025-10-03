@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Alert, Badge, InputGroup } from 'react-bootstrap';
 import { useAuth } from '../../contexts/AuthContext';
+import { FaExclamationTriangle } from 'react-icons/fa';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -118,7 +119,7 @@ const Register = () => {
                   {error && (
                     <Alert variant="danger" className="mb-3">
                       <div className="d-flex align-items-center">
-                        <span className="me-2">⚠️</span>
+                        <FaExclamationTriangle className="me-2" />
                         {error}
                       </div>
                     </Alert>
@@ -189,7 +190,7 @@ const Register = () => {
                         value="user"
                         checked={formData.role === 'user'}
                         onChange={handleChange}
-                        label="👤 Kullanıcı"
+                        label="Kullanıcı"
                         className="fw-medium"
                       />
                       <Form.Check
@@ -199,7 +200,7 @@ const Register = () => {
                         value="expert"
                         checked={formData.role === 'expert'}
                         onChange={handleChange}
-                        label="💼 Uzman"
+                        label="Uzman"
                         className="fw-medium"
                       />
                     </div>

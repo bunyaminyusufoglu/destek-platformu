@@ -2,6 +2,22 @@ import React, { useState } from 'react';
 import { Nav, Badge, Offcanvas, Button } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { 
+  FaHome, 
+  FaFileAlt, 
+  FaInbox, 
+  FaClipboardList, 
+  FaEye, 
+  FaHandshake, 
+  FaUsers, 
+  FaChartBar, 
+  FaCog, 
+  FaComments, 
+  FaSignOutAlt,
+  FaCrown,
+  FaUser,
+  FaBriefcase
+} from 'react-icons/fa';
 
 const Sidebar = () => {
   const { user, logout, isAdmin, isUser, isExpert } = useAuth();
@@ -20,53 +36,53 @@ const Sidebar = () => {
   };
 
   const getRoleBadge = () => {
-    if (isAdmin) return <Badge bg="warning" className="ms-2">👑 Admin</Badge>;
-    if (isUser) return <Badge bg="success" className="ms-2">👤 Kullanıcı</Badge>;
-    if (isExpert) return <Badge bg="primary" className="ms-2">💼 Uzman</Badge>;
+    if (isAdmin) return <Badge bg="warning" className="ms-2"><FaCrown className="me-1" />Admin</Badge>;
+    if (isUser) return <Badge bg="success" className="ms-2"><FaUser className="me-1" />Kullanıcı</Badge>;
+    if (isExpert) return <Badge bg="primary" className="ms-2"><FaBriefcase className="me-1" />Uzman</Badge>;
     return null;
   };
 
   const getNavigationItems = () => {
     const items = [
-      { path: '/dashboard', label: 'Dashboard', icon: '🏠' },
+      { path: '/dashboard', label: 'Dashboard', icon: <FaHome /> },
     ];
 
     // Kullanıcı için sadece kendi talepleri
     if (isUser) {
       items.push(
-        { path: '/my-requests', label: 'Taleplerim', icon: '📋' },
-        { path: '/incoming-offers', label: 'Gelen Teklifler', icon: '📨' }
+        { path: '/my-requests', label: 'Taleplerim', icon: <FaFileAlt /> },
+        { path: '/incoming-offers', label: 'Gelen Teklifler', icon: <FaInbox /> }
       );
     }
     
     // Admin için tüm talepler ve kendi talepleri
     if (isAdmin) {
       items.push(
-        { path: '/support-requests', label: 'Tüm Talepler', icon: '📝' },
-        { path: '/my-requests', label: 'Taleplerim', icon: '📋' }
+        { path: '/support-requests', label: 'Tüm Talepler', icon: <FaClipboardList /> },
+        { path: '/my-requests', label: 'Taleplerim', icon: <FaFileAlt /> }
       );
     }
 
     // Uzman ve Admin için
     if (isExpert || isAdmin) {
       items.push(
-        { path: '/available-requests', label: 'Açık Talepler', icon: '🔍' },
-        { path: '/my-offers', label: 'Tekliflerim', icon: '💼' }
+        { path: '/available-requests', label: 'Açık Talepler', icon: <FaEye /> },
+        { path: '/my-offers', label: 'Tekliflerim', icon: <FaHandshake /> }
       );
     }
 
     // Admin için özel sayfalar
     if (isAdmin) {
       items.push(
-        { path: '/admin/users', label: 'Kullanıcılar', icon: '👥' },
-        { path: '/admin/analytics', label: 'Analitik', icon: '📊' },
-        { path: '/admin/settings', label: 'Ayarlar', icon: '⚙️' }
+        { path: '/admin/users', label: 'Kullanıcılar', icon: <FaUsers /> },
+        { path: '/admin/analytics', label: 'Analitik', icon: <FaChartBar /> },
+        { path: '/admin/settings', label: 'Ayarlar', icon: <FaCog /> }
       );
     }
 
     // Herkes için
     items.push(
-      { path: '/messages', label: 'Mesajlar', icon: '💬' }
+      { path: '/messages', label: 'Mesajlar', icon: <FaComments /> }
     );
 
     return items;
@@ -113,7 +129,7 @@ const Sidebar = () => {
               className="sidebar-nav-link"
               style={{ cursor: 'pointer' }}
             >
-              <span className="nav-icon">⚙️</span>
+              <span className="nav-icon"><FaCog /></span>
               <span className="nav-text">Ayarlar</span>
             </Nav.Link>
             
@@ -122,7 +138,7 @@ const Sidebar = () => {
               className="sidebar-nav-link logout-link"
               style={{ cursor: 'pointer' }}
             >
-              <span className="nav-icon">🚪</span>
+              <span className="nav-icon"><FaSignOutAlt /></span>
               <span className="nav-text">Çıkış Yap</span>
             </Nav.Link>
           </Nav>
@@ -204,7 +220,7 @@ const Sidebar = () => {
               className="sidebar-nav-link"
               style={{ cursor: 'pointer' }}
             >
-              <span className="nav-icon">⚙️</span>
+              <span className="nav-icon"><FaCog /></span>
               <span className="nav-text">Ayarlar</span>
             </Nav.Link>
             
@@ -213,7 +229,7 @@ const Sidebar = () => {
               className="sidebar-nav-link logout-link"
               style={{ cursor: 'pointer' }}
             >
-              <span className="nav-icon">🚪</span>
+              <span className="nav-icon"><FaSignOutAlt /></span>
               <span className="nav-text">Çıkış Yap</span>
             </Nav.Link>
           </Nav>

@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Alert, Spinner, Modal, Form } from 'react-bootstrap';
-import { useAuth } from '../../contexts/AuthContext';
 import { supportAPI, offerAPI } from '../../services/api';
+import { FaUser, FaDollarSign, FaHandshake } from 'react-icons/fa';
 
 const AvailableRequests = () => {
-  const { user } = useAuth();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -156,13 +155,13 @@ const AvailableRequests = () => {
                     <div className="row g-2 mb-3">
                       <div className="col-6">
                         <small className="text-muted">
-                          <strong>👤 Talep Eden:</strong><br />
+                          <strong><FaUser className="me-1" />Talep Eden:</strong><br />
                           {request.user.name}
                         </small>
                       </div>
                       <div className="col-6">
                         <small className="text-muted">
-                          <strong>💰 Bütçe:</strong><br />
+                          <strong><FaDollarSign className="me-1" />Bütçe:</strong><br />
                           {request.budget}₺
                         </small>
                       </div>
@@ -208,7 +207,8 @@ const AvailableRequests = () => {
                       size="sm"
                       onClick={() => handleShowModal(request)}
                     >
-                      💼 Teklif Ver
+                      <FaHandshake className="me-2" />
+                      Teklif Ver
                     </Button>
                   </div>
                 </Card.Body>
