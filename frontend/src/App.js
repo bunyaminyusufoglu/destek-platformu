@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Header from './components/shared/Header';
+import HomePage from './components/HomePage';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Dashboard from './components/shared/Dashboard';
@@ -42,6 +43,7 @@ function App() {
             <Header />
             <Routes>
             {/* Public Routes */}
+            <Route path="/" element={<HomePage />} />
             <Route 
               path="/login" 
               element={
@@ -178,7 +180,7 @@ function App() {
             />
             
             {/* Default Route */}
-            <Route path="/" element={<Navigate to="/dashboard" />} />
+            <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </div>
         </Router>

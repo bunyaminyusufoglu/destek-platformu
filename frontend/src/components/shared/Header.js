@@ -34,7 +34,9 @@ const Header = () => {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
             <Nav.Link as={Link} to="/login" className="nav-link-custom">
-              Giriş Yap
+              <Button size="sm" className="login-btn">
+                Giriş Yap
+              </Button>
             </Nav.Link>
             <Nav.Link as={Link} to="/register" className="nav-link-custom">
               <Button size="sm" className="register-btn">
