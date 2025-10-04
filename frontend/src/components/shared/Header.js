@@ -1,10 +1,16 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Container, Navbar, Nav, Button } from 'react-bootstrap';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Header = () => {
   const { isAuthenticated } = useAuth();
+  const location = useLocation();
+
+  // Admin sayfalarında header gösterme
+  if (location.pathname.startsWith('/admin')) {
+    return null;
+  }
 
   // Giriş yapmış kullanıcılar için header gösterme
   if (isAuthenticated) {
@@ -15,11 +21,13 @@ const Header = () => {
     <Navbar expand="lg" className="main-header">
       <Container>
         <Navbar.Brand as={Link} to="/" className="brand-logo">
-          <div className="brand-icon">🎯</div>
-          <div className="brand-text">
-            <div className="brand-title">Destek Platformu</div>
-            <div className="brand-subtitle">Yardım Al, Yardım Et</div>
-          </div>
+          <img 
+            src="/images/b15050.png" 
+            alt="Destek Platformu" 
+            className="brand-logo-img"
+            width="150" 
+            height="50"
+          />
         </Navbar.Brand>
         
         <Navbar.Toggle aria-controls="basic-navbar-nav" />

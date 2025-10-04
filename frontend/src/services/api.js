@@ -14,9 +14,18 @@ const api = axios.create({
 // Request interceptor - token ekle
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // Admin endpoint'leri için admin token kullan
+    if (config.url.startsWith('/admin')) {
+      const adminToken = localStorage.getItem('adminToken');
+      if (adminToken) {
+        config.headers.Authorization = `Bearer ${adminToken}`;
+      }
+    } else {
+      // Normal endpoint'ler için user token kullan
+      const token = localStorage.getItem('token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   },
@@ -30,10 +39,17 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token geçersizse localStorage'ı temizle
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      // Admin endpoint'leri için admin token temizle
+      if (error.config.url.startsWith('/admin')) {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('user');
+        window.location.href = '/admin';
+      } else {
+        // Normal endpoint'ler için user token temizle
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
@@ -155,6 +171,61 @@ export const messageAPI = {
   // Konuşmadaki tüm mesajları okundu işaretle
   markAllAsRead: async (conversationId) => {
     const response = await api.put(`/messages/conversation/${conversationId}/read-all`);
+    return response.data;
+  },
+};
+
+// Admin API functions
+export const adminAPI = {
+  // Dashboard istatistikleri
+  getDashboardStats: async () => {
+    const response = await api.get('/admin/dashboard/stats');
+    return response.data;
+  },
+
+  // Kullanıcı yönetimi
+  getAllUsers: async (page = 1, limit = 10) => {
+    const response = await api.get(`/admin/users?page=${page}&limit=${limit}`);
+    return response.data;
+  },
+
+  getUserById: async (id) => {
+    const response = await api.get(`/admin/users/${id}`);
+    return response.data;
+  },
+
+  updateUser: async (id, userData) => {
+    const response = await api.put(`/admin/users/${id}`, userData);
+    return response.data;
+  },
+
+  deleteUser: async (id) => {
+    const response = await api.delete(`/admin/users/${id}`);
+    return response.data;
+  },
+
+  resetUserPassword: async (id, newPassword) => {
+    const response = await api.put(`/admin/users/${id}/reset-password`, { newPassword });
+    return response.data;
+  },
+
+  // Destek talepleri yönetimi
+  getAllSupportRequests: async (page = 1, limit = 10, status = null) => {
+    let url = `/admin/support-requests?page=${page}&limit=${limit}`;
+    if (status) {
+      url += `&status=${status}`;
+    }
+    const response = await api.get(url);
+    return response.data;
+  },
+
+  updateSupportRequest: async (id, requestData) => {
+    const response = await api.put(`/admin/support-requests/${id}`, requestData);
+    return response.data;
+  },
+
+  deleteSupportRequest: async (id) => {
+    const response = await api.delete(`/admin/support-requests/${id}`);
     return response.data;
   },
 };

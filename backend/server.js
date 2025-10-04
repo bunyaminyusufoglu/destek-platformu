@@ -12,6 +12,7 @@ import protectedRoutes from "./routes/protected.js";
 import supportRoutes from "./routes/support.js";
 import offerRoutes from "./routes/offer.js";
 import messageRoutes from "./routes/message.js";
+import adminRoutes from "./routes/admin.js";
 import connectDB from "./config/db.js";
 
 // Environment variables yükle
@@ -54,6 +55,7 @@ app.use("/api/protected", protectedRoutes);
 app.use("/api/support", supportRoutes);
 app.use("/api/offers", offerRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/admin", adminRoutes);
 
 
 // Socket.io authentication middleware

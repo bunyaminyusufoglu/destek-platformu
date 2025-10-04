@@ -12,8 +12,15 @@ import MyOffers from './components/expert/MyOffers';
 import IncomingOffers from './components/user/IncomingOffers';
 import ProtectedRoute from './components/shared/ProtectedRoute';
 import Layout from './components/shared/Layout';
+import AdminLayout from './components/admin/AdminLayout';
 import SupportRequestForm from './components/user/SupportRequestForm';
 import MyRequests from './components/user/MyRequests';
+import AdminDashboard from './components/admin/AdminDashboard';
+import UserManagement from './components/admin/UserManagement';
+import SupportRequestManagement from './components/admin/SupportRequestManagement';
+import AdminLogin from './components/admin/AdminLogin';
+import AdminAuthProvider from './components/admin/AdminAuthProvider';
+import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
 
 // Public Route Component (sadece giriş yapmamış kullanıcılar)
 const PublicRoute = ({ children }) => {
@@ -29,10 +36,11 @@ const PublicRoute = ({ children }) => {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <div className="App">
-          <Header />
-          <Routes>
+      <AdminAuthProvider>
+        <Router>
+          <div className="App">
+            <Header />
+            <Routes>
             {/* Public Routes */}
             <Route 
               path="/login" 
@@ -133,11 +141,48 @@ function App() {
               } 
             />
             
+            {/* Admin Routes */}
+            <Route 
+              path="/admin" 
+              element={<AdminLogin />} 
+            />
+            <Route 
+              path="/admin/dashboard" 
+              element={
+                <AdminProtectedRoute>
+                  <AdminLayout>
+                    <AdminDashboard />
+                  </AdminLayout>
+                </AdminProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/users" 
+              element={
+                <AdminProtectedRoute>
+                  <AdminLayout>
+                    <UserManagement />
+                  </AdminLayout>
+                </AdminProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/requests" 
+              element={
+                <AdminProtectedRoute>
+                  <AdminLayout>
+                    <SupportRequestManagement />
+                  </AdminLayout>
+                </AdminProtectedRoute>
+              } 
+            />
+            
             {/* Default Route */}
             <Route path="/" element={<Navigate to="/dashboard" />} />
-          </Routes>
-        </div>
-      </Router>
+            </Routes>
+          </div>
+        </Router>
+      </AdminAuthProvider>
     </AuthProvider>
   );
 }

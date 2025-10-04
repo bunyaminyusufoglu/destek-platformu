@@ -9,8 +9,6 @@ import {
   FaClipboardList, 
   FaEye, 
   FaHandshake, 
-  FaUsers, 
-  FaChartBar, 
   FaCog, 
   FaComments, 
   FaSignOutAlt,
@@ -71,14 +69,8 @@ const Sidebar = () => {
       );
     }
 
-    // Admin için özel sayfalar
-    if (isAdmin) {
-      items.push(
-        { path: '/admin/users', label: 'Kullanıcılar', icon: <FaUsers /> },
-        { path: '/admin/analytics', label: 'Analitik', icon: <FaChartBar /> },
-        { path: '/admin/settings', label: 'Ayarlar', icon: <FaCog /> }
-      );
-    }
+    // Admin için özel sayfalar - artık ayrı admin sistemi var
+    // Admin paneline /admin URL'inden erişilebilir
 
     // Herkes için
     items.push(
