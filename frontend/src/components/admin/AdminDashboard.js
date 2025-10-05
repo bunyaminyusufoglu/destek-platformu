@@ -190,6 +190,15 @@ const AdminDashboard = () => {
                   <Button 
                     variant="info" 
                     className="flex-fill flex-md-grow-0"
+                    as={Link}
+                    to="/admin/reports"
+                  >
+                    <FaChartLine className="me-2" />
+                    Raporlar
+                  </Button>
+                  <Button 
+                    variant="outline-info" 
+                    className="flex-fill flex-md-grow-0"
                     onClick={fetchStats}
                   >
                     <FaChartLine className="me-2" />

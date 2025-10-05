@@ -19,6 +19,7 @@ import MyRequests from './components/user/MyRequests';
 import AdminDashboard from './components/admin/AdminDashboard';
 import UserManagement from './components/admin/UserManagement';
 import SupportRequestManagement from './components/admin/SupportRequestManagement';
+import Reports from './components/admin/Reports';
 import AdminLogin from './components/admin/AdminLogin';
 import AdminAuthProvider from './components/admin/AdminAuthProvider';
 import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
@@ -174,6 +175,16 @@ function App() {
                 <AdminProtectedRoute>
                   <AdminLayout>
                     <SupportRequestManagement />
+                  </AdminLayout>
+                </AdminProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/reports" 
+              element={
+                <AdminProtectedRoute>
+                  <AdminLayout>
+                    <Reports />
                   </AdminLayout>
                 </AdminProtectedRoute>
               } 

@@ -9,7 +9,8 @@ import {
   resetUserPassword,
   getAllSupportRequests,
   updateSupportRequest,
-  deleteSupportRequest
+  deleteSupportRequest,
+  getReports
 } from "../controllers/adminController.js";
 
 const router = express.Router();
@@ -31,5 +32,8 @@ router.put("/users/:id/reset-password", resetUserPassword);
 router.get("/support-requests", getAllSupportRequests);
 router.put("/support-requests/:id", updateSupportRequest);
 router.delete("/support-requests/:id", deleteSupportRequest);
+
+// Raporlar
+router.get("/reports", getReports);
 
 export default router;

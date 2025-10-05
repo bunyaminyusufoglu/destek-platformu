@@ -228,6 +228,12 @@ export const adminAPI = {
     const response = await api.delete(`/admin/support-requests/${id}`);
     return response.data;
   },
+
+  // Raporlar
+  getReports: async (period = '30d', type = 'overview') => {
+    const response = await api.get(`/admin/reports?period=${period}&type=${type}`);
+    return response.data;
+  },
 };
 
 export default api;

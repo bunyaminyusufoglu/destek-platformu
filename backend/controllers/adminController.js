@@ -7,25 +7,38 @@ import bcrypt from "bcryptjs";
 // Admin Dashboard İstatistikleri
 export const getDashboardStats = async (req, res) => {
   try {
-    const totalUsers = await User.countDocuments();
-    const totalExperts = await User.countDocuments({ isExpert: true });
-    const totalAdmins = await User.countDocuments({ isAdmin: true });
-    const totalRequests = await SupportRequest.countDocuments();
-    const totalOffers = await Offer.countDocuments();
-    const totalMessages = await Message.countDocuments();
-
-    // Son 30 günün istatistikleri
+    // Son 30 günün tarihi
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const recentUsers = await User.countDocuments({ createdAt: { $gte: thirtyDaysAgo } });
-    const recentRequests = await SupportRequest.countDocuments({ createdAt: { $gte: thirtyDaysAgo } });
-    const recentOffers = await Offer.countDocuments({ createdAt: { $gte: thirtyDaysAgo } });
-
-    // Durum bazlı istatistikler
-    const pendingRequests = await SupportRequest.countDocuments({ status: 'pending' });
-    const activeRequests = await SupportRequest.countDocuments({ status: 'active' });
-    const completedRequests = await SupportRequest.countDocuments({ status: 'completed' });
+    // Tüm sorguları paralel olarak çalıştır
+    const [
+      totalUsers,
+      totalExperts,
+      totalAdmins,
+      totalRequests,
+      totalOffers,
+      totalMessages,
+      recentUsers,
+      recentRequests,
+      recentOffers,
+      pendingRequests,
+      activeRequests,
+      completedRequests
+    ] = await Promise.all([
+      User.countDocuments(),
+      User.countDocuments({ isExpert: true }),
+      User.countDocuments({ isAdmin: true }),
+      SupportRequest.countDocuments(),
+      Offer.countDocuments(),
+      Message.countDocuments(),
+      User.countDocuments({ createdAt: { $gte: thirtyDaysAgo } }),
+      SupportRequest.countDocuments({ createdAt: { $gte: thirtyDaysAgo } }),
+      Offer.countDocuments({ createdAt: { $gte: thirtyDaysAgo } }),
+      SupportRequest.countDocuments({ status: 'pending' }),
+      SupportRequest.countDocuments({ status: 'active' }),
+      SupportRequest.countDocuments({ status: 'completed' })
+    ]);
 
     res.json({
       users: {
@@ -61,12 +74,14 @@ export const getAllUsers = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const users = await User.find({}, { password: 0 })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
-
-    const total = await User.countDocuments();
+    // Kullanıcıları ve toplam sayıyı paralel olarak getir
+    const [users, total] = await Promise.all([
+      User.find({}, { password: 0 })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      User.countDocuments()
+    ]);
 
     res.json({
       users,
@@ -85,16 +100,16 @@ export const getAllUsers = async (req, res) => {
 // Kullanıcı detaylarını getir
 export const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id, { password: 0 });
+    // Kullanıcı, talepler ve teklifleri paralel olarak getir
+    const [user, userRequests, userOffers] = await Promise.all([
+      User.findById(req.params.id, { password: 0 }),
+      SupportRequest.find({ user: req.params.id }),
+      Offer.find({ expert: req.params.id })
+    ]);
+    
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-
-    // Kullanıcının destek talepleri
-    const userRequests = await SupportRequest.find({ userId: req.params.id });
-    
-    // Kullanıcının teklifleri
-    const userOffers = await Offer.find({ expertId: req.params.id });
 
     res.json({
       user,
@@ -161,12 +176,12 @@ export const deleteUser = async (req, res) => {
     }
 
     // İlişkili verileri de sil
-    await SupportRequest.deleteMany({ userId: req.params.id });
-    await Offer.deleteMany({ expertId: req.params.id });
+    await SupportRequest.deleteMany({ user: req.params.id });
+    await Offer.deleteMany({ expert: req.params.id });
     await Message.deleteMany({ 
       $or: [
-        { senderId: req.params.id },
-        { receiverId: req.params.id }
+        { sender: req.params.id },
+        { receiver: req.params.id }
       ]
     });
 
@@ -207,13 +222,15 @@ export const getAllSupportRequests = async (req, res) => {
 
     const filter = status ? { status } : {};
     
-    const requests = await SupportRequest.find(filter)
-      .populate('userId', 'name email')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
-
-    const total = await SupportRequest.countDocuments(filter);
+    // Talepleri ve toplam sayıyı paralel olarak getir
+    const [requests, total] = await Promise.all([
+      SupportRequest.find(filter)
+        .populate('user', 'name email')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      SupportRequest.countDocuments(filter)
+    ]);
 
     res.json({
       requests,
@@ -243,7 +260,7 @@ export const updateSupportRequest = async (req, res) => {
       req.params.id,
       { status, priority },
       { new: true }
-    ).populate('userId', 'name email');
+    ).populate('user', 'name email');
 
     res.json({ message: "Support request updated successfully", request: updatedRequest });
   } catch (error) {
@@ -260,13 +277,244 @@ export const deleteSupportRequest = async (req, res) => {
     }
 
     // İlişkili teklifleri ve mesajları da sil
-    await Offer.deleteMany({ requestId: req.params.id });
-    await Message.deleteMany({ requestId: req.params.id });
+    await Offer.deleteMany({ supportRequest: req.params.id });
+    await Message.deleteMany({ conversation: req.params.id });
     await SupportRequest.findByIdAndDelete(req.params.id);
 
     res.json({ message: "Support request deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+};
+
+// Raporlar - Detaylı istatistikler
+export const getReports = async (req, res) => {
+  try {
+    const { period = '30d', type = 'overview' } = req.query;
+    
+    // Tarih aralığını hesapla
+    let startDate = new Date();
+    switch (period) {
+      case '7d':
+        startDate.setDate(startDate.getDate() - 7);
+        break;
+      case '30d':
+        startDate.setDate(startDate.getDate() - 30);
+        break;
+      case '90d':
+        startDate.setDate(startDate.getDate() - 90);
+        break;
+      case '1y':
+        startDate.setFullYear(startDate.getFullYear() - 1);
+        break;
+      default:
+        startDate.setDate(startDate.getDate() - 30);
+    }
+
+    const endDate = new Date();
+
+    // Genel rapor verileri
+    const [
+      userStats,
+      requestStats,
+      offerStats,
+      messageStats,
+      monthlyData,
+      topExperts,
+      requestCategories,
+      completionRates
+    ] = await Promise.all([
+      // Kullanıcı istatistikleri
+      Promise.all([
+        User.countDocuments({ createdAt: { $gte: startDate, $lte: endDate } }),
+        User.countDocuments({ isExpert: true, createdAt: { $gte: startDate, $lte: endDate } }),
+        User.countDocuments({ isAdmin: true }),
+        User.countDocuments()
+      ]),
+      
+      // Talep istatistikleri
+      Promise.all([
+        SupportRequest.countDocuments({ createdAt: { $gte: startDate, $lte: endDate } }),
+        SupportRequest.countDocuments({ status: 'completed', createdAt: { $gte: startDate, $lte: endDate } }),
+        SupportRequest.countDocuments({ status: 'open' }),
+        SupportRequest.countDocuments({ status: 'in_progress' }),
+        SupportRequest.countDocuments()
+      ]),
+      
+      // Teklif istatistikleri
+      Promise.all([
+        Offer.countDocuments({ createdAt: { $gte: startDate, $lte: endDate } }),
+        Offer.countDocuments({ status: 'accepted', createdAt: { $gte: startDate, $lte: endDate } }),
+        Offer.countDocuments({ status: 'pending' }),
+        Offer.countDocuments()
+      ]),
+      
+      // Mesaj istatistikleri
+      Promise.all([
+        Message.countDocuments({ createdAt: { $gte: startDate, $lte: endDate } }),
+        Message.countDocuments()
+      ]),
+      
+      // Aylık veriler (son 12 ay)
+      getMonthlyData(),
+      
+      // En aktif uzmanlar
+      getTopExperts(10),
+      
+      // Talep kategorileri (skills bazında)
+      getRequestCategories(),
+      
+      // Tamamlanma oranları
+      getCompletionRates()
+    ]);
+
+    const [newUsers, newExperts, totalAdmins, totalUsers] = userStats;
+    const [newRequests, completedRequests, openRequests, inProgressRequests, totalRequests] = requestStats;
+    const [newOffers, acceptedOffers, pendingOffers, totalOffers] = offerStats;
+    const [newMessages, totalMessages] = messageStats;
+
+    res.json({
+      period,
+      dateRange: { startDate, endDate },
+      summary: {
+        users: {
+          new: newUsers,
+          newExperts,
+          totalAdmins,
+          totalUsers
+        },
+        requests: {
+          new: newRequests,
+          completed: completedRequests,
+          open: openRequests,
+          inProgress: inProgressRequests,
+          total: totalRequests,
+          completionRate: totalRequests > 0 ? ((completedRequests / totalRequests) * 100).toFixed(1) : 0
+        },
+        offers: {
+          new: newOffers,
+          accepted: acceptedOffers,
+          pending: pendingOffers,
+          total: totalOffers,
+          acceptanceRate: totalOffers > 0 ? ((acceptedOffers / totalOffers) * 100).toFixed(1) : 0
+        },
+        messages: {
+          new: newMessages,
+          total: totalMessages
+        }
+      },
+      charts: {
+        monthlyData,
+        topExperts,
+        requestCategories,
+        completionRates
+      }
+    });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Yardımcı fonksiyonlar
+const getMonthlyData = async () => {
+  const months = [];
+  const now = new Date();
+  
+  for (let i = 11; i >= 0; i--) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+    
+    const [users, requests, offers] = await Promise.all([
+      User.countDocuments({ createdAt: { $gte: date, $lt: nextMonth } }),
+      SupportRequest.countDocuments({ createdAt: { $gte: date, $lt: nextMonth } }),
+      Offer.countDocuments({ createdAt: { $gte: date, $lt: nextMonth } })
+    ]);
+    
+    months.push({
+      month: date.toLocaleDateString('tr-TR', { month: 'short', year: 'numeric' }),
+      users,
+      requests,
+      offers
+    });
+  }
+  
+  return months;
+};
+
+const getTopExperts = async (limit = 10) => {
+  const experts = await Offer.aggregate([
+    {
+      $match: { status: 'accepted' }
+    },
+    {
+      $group: {
+        _id: '$expert',
+        totalOffers: { $sum: 1 },
+        totalEarnings: { $sum: '$proposedPrice' }
+      }
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'expertInfo'
+      }
+    },
+    {
+      $unwind: '$expertInfo'
+    },
+    {
+      $project: {
+        name: '$expertInfo.name',
+        email: '$expertInfo.email',
+        totalOffers: 1,
+        totalEarnings: 1
+      }
+    },
+    {
+      $sort: { totalOffers: -1 }
+    },
+    {
+      $limit: limit
+    }
+  ]);
+  
+  return experts;
+};
+
+const getRequestCategories = async () => {
+  const categories = await SupportRequest.aggregate([
+    { $unwind: '$skills' },
+    {
+      $group: {
+        _id: '$skills',
+        count: { $sum: 1 },
+        avgBudget: { $avg: '$budget' }
+      }
+    },
+    {
+      $sort: { count: -1 }
+    },
+    {
+      $limit: 10
+    }
+  ]);
+  
+  return categories;
+};
+
+const getCompletionRates = async () => {
+  const rates = await SupportRequest.aggregate([
+    {
+      $group: {
+        _id: '$status',
+        count: { $sum: 1 }
+      }
+    }
+  ]);
+  
+  return rates;
 };
 
