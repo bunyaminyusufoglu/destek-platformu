@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Header from './components/shared/Header';
@@ -20,9 +20,11 @@ import AdminDashboard from './components/admin/AdminDashboard';
 import UserManagement from './components/admin/UserManagement';
 import SupportRequestManagement from './components/admin/SupportRequestManagement';
 import Reports from './components/admin/Reports';
+import AdminSettings from './components/admin/AdminSettings';
 import AdminLogin from './components/admin/AdminLogin';
 import AdminAuthProvider from './components/admin/AdminAuthProvider';
 import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
+import { settingsAPI } from './services/api';
 
 // Public Route Component (sadece giriş yapmamış kullanıcılar)
 const PublicRoute = ({ children }) => {
@@ -36,6 +38,41 @@ const PublicRoute = ({ children }) => {
 };
 
 function App() {
+  useEffect(() => {
+    const applySeo = async () => {
+      try {
+        const data = await settingsAPI.getPublic();
+        const seo = data?.seo || {};
+        if (seo.title) document.title = seo.title;
+        const ensureMeta = (name) => {
+          let el = document.querySelector(`meta[name="${name}"]`);
+          if (!el) {
+            el = document.createElement('meta');
+            el.setAttribute('name', name);
+            document.head.appendChild(el);
+          }
+          return el;
+        };
+        if (seo.description !== undefined) {
+          const meta = ensureMeta('description');
+          meta.setAttribute('content', seo.description || '');
+        }
+        if (seo.keywords !== undefined) {
+          const meta = ensureMeta('keywords');
+          const keywords = Array.isArray(seo.keywords) ? seo.keywords.join(', ') : (seo.keywords || '');
+          meta.setAttribute('content', keywords);
+        }
+        if (seo.robots !== undefined) {
+          const meta = ensureMeta('robots');
+          meta.setAttribute('content', seo.robots || 'index, follow');
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
+    applySeo();
+  }, []);
+
   return (
     <AuthProvider>
       <AdminAuthProvider>
@@ -185,6 +222,16 @@ function App() {
                 <AdminProtectedRoute>
                   <AdminLayout>
                     <Reports />
+                  </AdminLayout>
+                </AdminProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/settings" 
+              element={
+                <AdminProtectedRoute>
+                  <AdminLayout>
+                    <AdminSettings />
                   </AdminLayout>
                 </AdminProtectedRoute>
               } 

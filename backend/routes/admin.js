@@ -10,7 +10,9 @@ import {
   getAllSupportRequests,
   updateSupportRequest,
   deleteSupportRequest,
-  getReports
+  getReports,
+  getSettings,
+  updateSettings
 } from "../controllers/adminController.js";
 
 const router = express.Router();
@@ -35,5 +37,9 @@ router.delete("/support-requests/:id", deleteSupportRequest);
 
 // Raporlar
 router.get("/reports", getReports);
+
+// Ayarlar
+router.get("/settings", getSettings);
+router.put("/settings", getSettings, updateSettings);
 
 export default router;

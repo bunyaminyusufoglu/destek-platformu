@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import SupportRequest from "../models/SupportRequest.js";
 import Offer from "../models/Offer.js";
 import Message from "../models/Message.js";
+import Settings from "../models/Settings.js";
 import bcrypt from "bcryptjs";
 
 // Admin Dashboard İstatistikleri
@@ -411,6 +412,45 @@ export const getReports = async (req, res) => {
       }
     });
 
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Admin Settings - Get
+export const getSettings = async (req, res) => {
+  try {
+    const doc = await Settings.findOne();
+    if (!doc) {
+      const created = await Settings.create({});
+      return res.json(created);
+    }
+    res.json(doc);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Admin Settings - Update
+export const updateSettings = async (req, res) => {
+  try {
+    const { platformName, supportEmail, maintenanceMode, seo } = req.body;
+
+    const update = {};
+    if (platformName !== undefined) update.platformName = platformName;
+    if (supportEmail !== undefined) update.supportEmail = supportEmail;
+    if (maintenanceMode !== undefined) update.maintenanceMode = maintenanceMode;
+    if (seo !== undefined) {
+      update.seo = {
+        ...(seo.title !== undefined ? { title: seo.title } : {}),
+        ...(seo.description !== undefined ? { description: seo.description } : {}),
+        ...(seo.keywords !== undefined ? { keywords: seo.keywords } : {}),
+        ...(seo.robots !== undefined ? { robots: seo.robots } : {}),
+      };
+    }
+
+    const doc = await Settings.findOneAndUpdate({}, update, { upsert: true, new: true, setDefaultsOnInsert: true });
+    res.json({ message: "Settings updated", settings: doc });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

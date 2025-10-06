@@ -234,6 +234,23 @@ export const adminAPI = {
     const response = await api.get(`/admin/reports?period=${period}&type=${type}`);
     return response.data;
   },
+  // Settings
+  getSettings: async () => {
+    const response = await api.get('/admin/settings');
+    return response.data;
+  },
+  updateSettings: async (payload) => {
+    const response = await api.put('/admin/settings', payload);
+    return response.data;
+  },
+};
+
+// Public Settings API
+export const settingsAPI = {
+  getPublic: async () => {
+    const response = await api.get('/settings/public');
+    return response.data;
+  }
 };
 
 export default api;
