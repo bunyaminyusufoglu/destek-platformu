@@ -35,7 +35,10 @@ router.post("/create", authMiddleware, validate(createSupportRequestSchema), asy
 
 router.get("/", authMiddleware, async (req, res) => {
   try {
-    const requests = await SupportRequest.find()
+    // Sadece admin onaylanmış talepleri getir
+    const requests = await SupportRequest.find({
+      adminApprovalStatus: "approved"
+    })
       .populate("user", "name email")
       .populate("expert", "name email")
       .sort({ createdAt: -1 });

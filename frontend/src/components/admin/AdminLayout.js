@@ -7,7 +7,9 @@ import {
   FaChartBar, 
   FaCog,   
   FaSignOutAlt,
-  FaUserShield
+  FaUserShield,
+  FaHandshake,
+  FaFileAlt
 } from 'react-icons/fa';
 import { useAdminAuth } from './AdminAuthProvider';
 
@@ -19,6 +21,8 @@ const AdminLayout = ({ children }) => {
     { id: 'dashboard', label: 'Dashboard', icon: FaTachometerAlt, path: '/admin/dashboard' },
     { id: 'users', label: 'Kullanıcı Yönetimi', icon: FaUsers, path: '/admin/users' },
     { id: 'requests', label: 'Destek Talepleri', icon: FaTicketAlt, path: '/admin/requests' },
+    { id: 'request-approvals', label: 'Talep Onayları', icon: FaFileAlt, path: '/admin/request-approvals' },
+    { id: 'offers', label: 'Teklif Onayları', icon: FaHandshake, path: '/admin/offers' },
     { id: 'reports', label: 'Raporlar', icon: FaChartBar, path: '/admin/reports' },
     { id: 'settings', label: 'Ayarlar', icon: FaCog, path: '/admin/settings' }
   ];

@@ -24,6 +24,8 @@ import AdminSettings from './components/admin/AdminSettings';
 import AdminLogin from './components/admin/AdminLogin';
 import AdminAuthProvider from './components/admin/AdminAuthProvider';
 import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
+import OfferApproval from './components/admin/OfferApproval';
+import SupportRequestApproval from './components/admin/SupportRequestApproval';
 import { settingsAPI } from './services/api';
 
 // Public Route Component (sadece giriş yapmamış kullanıcılar)
@@ -222,6 +224,26 @@ function App() {
                 <AdminProtectedRoute>
                   <AdminLayout>
                     <Reports />
+                  </AdminLayout>
+                </AdminProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/request-approvals" 
+              element={
+                <AdminProtectedRoute>
+                  <AdminLayout>
+                    <SupportRequestApproval />
+                  </AdminLayout>
+                </AdminProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/offers" 
+              element={
+                <AdminProtectedRoute>
+                  <AdminLayout>
+                    <OfferApproval />
                   </AdminLayout>
                 </AdminProtectedRoute>
               } 

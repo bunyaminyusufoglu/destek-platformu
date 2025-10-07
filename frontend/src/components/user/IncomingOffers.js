@@ -78,7 +78,9 @@ const IncomingOffers = () => {
 
   const getOfferStatusBadge = (status) => {
     const statusConfig = {
-      pending: { variant: 'warning', text: 'Beklemede' },
+      pending: { variant: 'warning', text: 'Admin Onayı Bekliyor' },
+      admin_approved: { variant: 'info', text: 'Admin Onaylandı' },
+      admin_rejected: { variant: 'danger', text: 'Admin Reddetti' },
       accepted: { variant: 'success', text: 'Kabul Edildi' },
       rejected: { variant: 'danger', text: 'Reddedildi' },
       cancelled: { variant: 'secondary', text: 'İptal' }
@@ -147,7 +149,7 @@ const IncomingOffers = () => {
                       <span><FaClock className="me-1" />{offer.estimatedDuration}</span>
                       <span>📅 {formatDate(offer.createdAt)}</span>
                     </div>
-                    {offer.status === 'pending' && (
+                    {offer.status === 'admin_approved' && (
                       <div className="d-flex gap-2">
                         <Button 
                           variant="success" 
@@ -217,7 +219,7 @@ const IncomingOffers = () => {
             <Button variant="secondary" onClick={() => setShowModal(false)}>
               Kapat
             </Button>
-            {selectedOffer?.status === 'pending' && (
+            {selectedOffer?.status === 'admin_approved' && (
               <>
                 <Button 
                   variant="outline-danger" 

@@ -129,6 +129,11 @@ export const offerAPI = {
     return response.data;
   },
 
+  getMyAllOffers: async () => {
+    const response = await api.get('/offers/my-all-offers');
+    return response.data;
+  },
+
   // Teklif kabul et
   acceptOffer: async (offerId) => {
     const response = await api.put(`/offers/${offerId}/accept`);
@@ -241,6 +246,34 @@ export const adminAPI = {
   },
   updateSettings: async (payload) => {
     const response = await api.put('/admin/settings', payload);
+    return response.data;
+  },
+
+  // Offer approval
+  getPendingOffers: async (page = 1, limit = 10) => {
+    const response = await api.get(`/admin/offers/pending?page=${page}&limit=${limit}`);
+    return response.data;
+  },
+  approveOffer: async (offerId) => {
+    const response = await api.put(`/admin/offers/${offerId}/approve`);
+    return response.data;
+  },
+  rejectOffer: async (offerId) => {
+    const response = await api.put(`/admin/offers/${offerId}/reject`);
+    return response.data;
+  },
+
+  // Support request approval
+  getPendingSupportRequests: async (page = 1, limit = 10) => {
+    const response = await api.get(`/admin/support-requests/pending?page=${page}&limit=${limit}`);
+    return response.data;
+  },
+  approveSupportRequest: async (requestId) => {
+    const response = await api.put(`/admin/support-requests/${requestId}/approve`);
+    return response.data;
+  },
+  rejectSupportRequest: async (requestId) => {
+    const response = await api.put(`/admin/support-requests/${requestId}/reject`);
     return response.data;
   },
 };

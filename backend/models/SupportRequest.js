@@ -8,9 +8,17 @@ const supportRequestSchema = new mongoose.Schema({
   skills: { type: [String], default: [] },
   status: { 
     type: String, 
-    enum: ["open", "assigned", "in_progress", "completed", "cancelled"], 
-    default: "open" 
+    enum: ["pending", "admin_approved", "admin_rejected", "open", "assigned", "in_progress", "completed", "cancelled"], 
+    default: "pending" 
   },
+  adminApprovalStatus: { 
+    type: String, 
+    enum: ["pending", "approved", "rejected"], 
+    default: "pending" 
+  },
+  adminApprovedAt: { type: Date, default: null },
+  adminRejectedAt: { type: Date, default: null },
+  adminApprovedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   expert: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
   assignedAt: { type: Date, default: null },

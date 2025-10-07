@@ -12,7 +12,13 @@ import {
   deleteSupportRequest,
   getReports,
   getSettings,
-  updateSettings
+  updateSettings,
+  getPendingOffers,
+  approveOffer,
+  rejectOffer,
+  getPendingSupportRequests,
+  approveSupportRequest,
+  rejectSupportRequest
 } from "../controllers/adminController.js";
 
 const router = express.Router();
@@ -40,6 +46,16 @@ router.get("/reports", getReports);
 
 // Ayarlar
 router.get("/settings", getSettings);
-router.put("/settings", getSettings, updateSettings);
+router.put("/settings", updateSettings);
+
+// Teklif onaylama
+router.get("/offers/pending", getPendingOffers);
+router.put("/offers/:offerId/approve", approveOffer);
+router.put("/offers/:offerId/reject", rejectOffer);
+
+// Destek talebi onaylama
+router.get("/support-requests/pending", getPendingSupportRequests);
+router.put("/support-requests/:requestId/approve", approveSupportRequest);
+router.put("/support-requests/:requestId/reject", rejectSupportRequest);
 
 export default router;

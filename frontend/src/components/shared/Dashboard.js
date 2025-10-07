@@ -131,7 +131,9 @@ const Dashboard = () => {
 
   const getOfferStatusBadge = (status) => {
     const statusConfig = {
-      pending: { variant: 'warning', text: 'Beklemede' },
+      pending: { variant: 'warning', text: 'Admin Onayı Bekliyor' },
+      admin_approved: { variant: 'info', text: 'Admin Onaylandı' },
+      admin_rejected: { variant: 'danger', text: 'Admin Reddetti' },
       accepted: { variant: 'success', text: 'Kabul Edildi' },
       rejected: { variant: 'danger', text: 'Reddedildi' },
       cancelled: { variant: 'secondary', text: 'İptal' }
@@ -306,9 +308,9 @@ const Dashboard = () => {
                         <div key={offer._id} className="list-group-item border-0 px-0">
                           <div className="d-flex justify-content-between align-items-start">
                             <div className="flex-grow-1">
-                              <h6 className="mb-1">{offer.supportRequest.title}</h6>
+                              <h6 className="mb-1">{offer.supportRequest?.title || 'Talep bilgisi bulunamadı'}</h6>
                               <p className="text-muted mb-2 small">
-                                {offer.message.substring(0, 100)}...
+                                {offer.message?.substring(0, 100)}...
                               </p>
                               <div className="d-flex align-items-center gap-3">
                                 <small className="text-muted">

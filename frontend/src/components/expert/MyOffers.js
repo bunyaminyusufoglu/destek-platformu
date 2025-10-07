@@ -12,7 +12,7 @@ const MyOffers = () => {
     try {
       setLoading(true);
       setError('');
-      const data = await offerAPI.getMyOffers();
+      const data = await offerAPI.getMyAllOffers();
       setOffers(Array.isArray(data) ? data : data?.offers || []);
     } catch (err) {
       setError('Teklifler yüklenirken hata oluştu');
@@ -28,7 +28,9 @@ const MyOffers = () => {
 
   const getOfferStatusBadge = (status) => {
     const statusConfig = {
-      pending: { variant: 'warning', text: 'Beklemede' },
+      pending: { variant: 'warning', text: 'Admin Onayı Bekliyor' },
+      admin_approved: { variant: 'info', text: 'Admin Onaylandı' },
+      admin_rejected: { variant: 'danger', text: 'Admin Reddetti' },
       accepted: { variant: 'success', text: 'Kabul Edildi' },
       rejected: { variant: 'danger', text: 'Reddedildi' },
       cancelled: { variant: 'secondary', text: 'İptal' }

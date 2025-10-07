@@ -76,7 +76,11 @@ router.get("/request/:requestId", authMiddleware, validateObjectId("requestId"),
       return res.status(403).json({ message: "Bu talebe ait teklifleri göremezsiniz" });
     }
 
-    const offers = await Offer.find({ supportRequest: req.params.requestId })
+    // Sadece admin onaylı teklifleri göster
+    const offers = await Offer.find({ 
+      supportRequest: req.params.requestId,
+      adminApprovalStatus: "approved"
+    })
       .populate("expert", "name email skills")
       .sort({ createdAt: -1 });
 
@@ -86,7 +90,7 @@ router.get("/request/:requestId", authMiddleware, validateObjectId("requestId"),
   }
 });
 
-// Uzmanın gönderdiği teklifleri listele
+// Uzmanın gönderdiği teklifleri listele (sadece admin onaylanmış olanlar)
 router.get("/my-offers", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -94,6 +98,30 @@ router.get("/my-offers", authMiddleware, async (req, res) => {
       return res.status(403).json({ message: "Yalnızca uzmanlar bu endpoint'i kullanabilir" });
     }
 
+    // Sadece admin onaylanmış teklifleri getir
+    const offers = await Offer.find({ 
+      expert: req.user.id,
+      adminApprovalStatus: "approved"
+    })
+      .populate("supportRequest", "title budget deadline status")
+      .populate("expert", "name email")
+      .sort({ createdAt: -1 });
+
+    res.json(offers);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Uzmanın tüm tekliflerini listele (onay durumuna bakılmaksızın)
+router.get("/my-all-offers", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user || !user.isExpert) {
+      return res.status(403).json({ message: "Yalnızca uzmanlar bu endpoint'i kullanabilir" });
+    }
+
+    // Tüm teklifleri getir (onay durumu fark etmez)
     const offers = await Offer.find({ expert: req.user.id })
       .populate("supportRequest", "title budget deadline status")
       .populate("expert", "name email")
@@ -120,8 +148,13 @@ router.put("/:offerId/accept", authMiddleware, validateObjectId("offerId"), asyn
       return res.status(403).json({ message: "Bu teklifi kabul edemezsiniz" });
     }
 
+    // Teklif admin tarafından onaylanmış olmalı
+    if (offer.adminApprovalStatus !== "approved") {
+      return res.status(400).json({ message: "Bu teklif henüz admin onayı bekliyor" });
+    }
+
     // Teklif pending durumunda olmalı
-    if (offer.status !== "pending") {
+    if (offer.status !== "admin_approved") {
       return res.status(400).json({ message: "Bu teklif zaten yanıtlanmış" });
     }
 
@@ -142,7 +175,7 @@ router.put("/:offerId/accept", authMiddleware, validateObjectId("offerId"), asyn
       { 
         supportRequest: offer.supportRequest._id, 
         _id: { $ne: offer._id },
-        status: "pending"
+        status: "admin_approved"
       },
       { 
         status: "rejected", 
@@ -200,8 +233,13 @@ router.put("/:offerId/reject", authMiddleware, validateObjectId("offerId"), asyn
       return res.status(403).json({ message: "Bu teklifi reddedemezsiniz" });
     }
 
+    // Teklif admin tarafından onaylanmış olmalı
+    if (offer.adminApprovalStatus !== "approved") {
+      return res.status(400).json({ message: "Bu teklif henüz admin onayı bekliyor" });
+    }
+
     // Teklif pending durumunda olmalı
-    if (offer.status !== "pending") {
+    if (offer.status !== "admin_approved") {
       return res.status(400).json({ message: "Bu teklif zaten yanıtlanmış" });
     }
 

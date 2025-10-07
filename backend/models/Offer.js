@@ -27,9 +27,17 @@ const offerSchema = new mongoose.Schema({
   },
   status: { 
     type: String, 
-    enum: ["pending", "accepted", "rejected", "cancelled"], 
+    enum: ["pending", "admin_approved", "admin_rejected", "accepted", "rejected", "cancelled"], 
     default: "pending" 
   },
+  adminApprovalStatus: { 
+    type: String, 
+    enum: ["pending", "approved", "rejected"], 
+    default: "pending" 
+  },
+  adminApprovedAt: { type: Date, default: null },
+  adminRejectedAt: { type: Date, default: null },
+  adminApprovedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
   respondedAt: { type: Date, default: null }
 }, { timestamps: true });
 

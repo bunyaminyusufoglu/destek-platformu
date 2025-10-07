@@ -456,6 +456,172 @@ export const updateSettings = async (req, res) => {
   }
 };
 
+// Offer Approval - Get pending offers
+export const getPendingOffers = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const [offers, total] = await Promise.all([
+      Offer.find({ adminApprovalStatus: "pending" })
+        .populate("expert", "name email skills")
+        .populate("supportRequest", "title budget deadline user")
+        .populate("supportRequest.user", "name email")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Offer.countDocuments({ adminApprovalStatus: "pending" })
+    ]);
+
+    res.json({
+      offers,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Offer Approval - Approve offer
+export const approveOffer = async (req, res) => {
+  try {
+    const { offerId } = req.params;
+    
+    const offer = await Offer.findById(offerId);
+    if (!offer) {
+      return res.status(404).json({ message: "Teklif bulunamadı" });
+    }
+
+    if (offer.adminApprovalStatus !== "pending") {
+      return res.status(400).json({ message: "Bu teklif zaten işleme alınmış" });
+    }
+
+    offer.adminApprovalStatus = "approved";
+    offer.status = "admin_approved";
+    offer.adminApprovedAt = new Date();
+    offer.adminApprovedBy = req.user.id;
+    await offer.save();
+
+    res.json({ message: "Teklif onaylandı", offer });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Offer Approval - Reject offer
+export const rejectOffer = async (req, res) => {
+  try {
+    const { offerId } = req.params;
+    
+    const offer = await Offer.findById(offerId);
+    if (!offer) {
+      return res.status(404).json({ message: "Teklif bulunamadı" });
+    }
+
+    if (offer.adminApprovalStatus !== "pending") {
+      return res.status(400).json({ message: "Bu teklif zaten işleme alınmış" });
+    }
+
+    offer.adminApprovalStatus = "rejected";
+    offer.status = "admin_rejected";
+    offer.adminRejectedAt = new Date();
+    offer.adminApprovedBy = req.user.id;
+    await offer.save();
+
+    res.json({ message: "Teklif reddedildi", offer });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Support Request Approval - Get pending requests
+export const getPendingSupportRequests = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const [requests, total] = await Promise.all([
+      SupportRequest.find({ adminApprovalStatus: "pending" })
+        .populate("user", "name email")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      SupportRequest.countDocuments({ adminApprovalStatus: "pending" })
+    ]);
+
+    res.json({
+      requests,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Support Request Approval - Approve request
+export const approveSupportRequest = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    
+    const request = await SupportRequest.findById(requestId);
+    if (!request) {
+      return res.status(404).json({ message: "Destek talebi bulunamadı" });
+    }
+
+    if (request.adminApprovalStatus !== "pending") {
+      return res.status(400).json({ message: "Bu talep zaten işleme alınmış" });
+    }
+
+    request.adminApprovalStatus = "approved";
+    request.status = "open"; // Admin onaylandıktan sonra "open" durumuna geçer
+    request.adminApprovedAt = new Date();
+    request.adminApprovedBy = req.user.id;
+    await request.save();
+
+    res.json({ message: "Destek talebi onaylandı", request });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Support Request Approval - Reject request
+export const rejectSupportRequest = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    
+    const request = await SupportRequest.findById(requestId);
+    if (!request) {
+      return res.status(404).json({ message: "Destek talebi bulunamadı" });
+    }
+
+    if (request.adminApprovalStatus !== "pending") {
+      return res.status(400).json({ message: "Bu talep zaten işleme alınmış" });
+    }
+
+    request.adminApprovalStatus = "rejected";
+    request.status = "admin_rejected";
+    request.adminRejectedAt = new Date();
+    request.adminApprovedBy = req.user.id;
+    await request.save();
+
+    res.json({ message: "Destek talebi reddedildi", request });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Yardımcı fonksiyonlar
 const getMonthlyData = async () => {
   const months = [];
