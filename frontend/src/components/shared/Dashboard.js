@@ -169,8 +169,8 @@ const Dashboard = () => {
           {user.isUser ? (
             // Kullanıcı için kendi talepleri ve gelen teklifleri
             <>
-              <Col xs={6} md={3} className="mb-3">
-                <Card as={Link} to="/my-requests" className="h-100 border-0 shadow-sm text-decoration-none" style={{ cursor: 'pointer' }}>
+              <Col xs={6} md={4} className="mb-3">
+                <Card as={Link} to="/my-requests" className="h-100 border-0 shadow-sm text-decoration-none stats-card" style={{ cursor: 'pointer' }}>
                   <Card.Body className="text-center">
                     <FaFileAlt className="display-6 text-primary mb-2" />
                     <h3 className="h4 mb-1">{stats.myRequests}</h3>
@@ -179,8 +179,8 @@ const Dashboard = () => {
                 </Card>
               </Col>
               
-              <Col xs={6} md={3} className="mb-3">
-                <Card as={Link} to="/incoming-offers" className="h-100 border-0 shadow-sm text-decoration-none" style={{ cursor: 'pointer' }}>
+              <Col xs={6} md={4} className="mb-3">
+                <Card as={Link} to="/incoming-offers" className="h-100 border-0 shadow-sm text-decoration-none stats-card" style={{ cursor: 'pointer' }}>
                   <Card.Body className="text-center">
                     <FaInbox className="display-6 text-success mb-2" />
                     <h3 className="h4 mb-1">{stats.incomingOffers}</h3>
@@ -190,33 +190,21 @@ const Dashboard = () => {
               </Col>
             </>
           ) : (
-            // Uzman/Admin için tüm talepler
-            <>
-              <Col xs={6} md={3} className="mb-3">
-                <Card as={Link} to="/support-requests" className="h-100 border-0 shadow-sm text-decoration-none" style={{ cursor: 'pointer' }}>
-                  <Card.Body className="text-center">
-                    <FaClipboardList className="display-6 text-primary mb-2" />
-                    <h3 className="h4 mb-1">{stats.totalRequests}</h3>
-                    <p className="text-muted mb-0">Toplam Talep</p>
-                  </Card.Body>
-                </Card>
-              </Col>
-              
-              <Col xs={6} md={3} className="mb-3">
-                <Card as={Link} to="/my-requests" className="h-100 border-0 shadow-sm text-decoration-none" style={{ cursor: 'pointer' }}>
-                  <Card.Body className="text-center">
-                    <FaFileAlt className="display-6 text-success mb-2" />
-                    <h3 className="h4 mb-1">{stats.myRequests}</h3>
-                    <p className="text-muted mb-0">Benim Taleplerim</p>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </>
+            // Uzman/Admin için açık talepler
+            <Col xs={6} md={4} className="mb-3">
+              <Card as={Link} to="/available-requests" className="h-100 border-0 shadow-sm text-decoration-none stats-card" style={{ cursor: 'pointer' }}>
+                <Card.Body className="text-center">
+                  <FaClipboardList className="display-6 text-primary mb-2" />
+                  <h3 className="h4 mb-1">{stats.totalRequests}</h3>
+                  <p className="text-muted mb-0">Açık Talepler</p>
+                </Card.Body>
+              </Card>
+            </Col>
           )}
 
           {(user.isExpert || user.isAdmin) && (
             <Col xs={6} md={3} className="mb-3">
-              <Card as={Link} to="/my-offers" className="h-100 border-0 shadow-sm text-decoration-none" style={{ cursor: 'pointer' }}>
+              <Card as={Link} to="/my-offers" className="h-100 border-0 shadow-sm text-decoration-none stats-card" style={{ cursor: 'pointer' }}>
                 <Card.Body className="text-center">
                   <FaHandshake className="display-6 text-warning mb-2" />
                   <h3 className="h4 mb-1">{stats.myOffers}</h3>
@@ -226,8 +214,8 @@ const Dashboard = () => {
             </Col>
           )}
 
-          <Col xs={6} md={3} className="mb-3">
-            <Card as={Link} to="/messages" className="h-100 border-0 shadow-sm text-decoration-none" style={{ cursor: 'pointer' }}>
+          <Col xs={6} md={4} className="mb-3">
+            <Card as={Link} to="/messages" className="h-100 border-0 shadow-sm text-decoration-none stats-card" style={{ cursor: 'pointer' }}>
               <Card.Body className="text-center">
                 <FaComments className="display-6 text-info mb-2" />
                 <h3 className="h4 mb-1">{stats.unreadMessages}</h3>
@@ -367,7 +355,12 @@ const Dashboard = () => {
                     </Button>
                   )}
                   {user.isAdmin && (
-                    <Button variant="warning" className="flex-fill flex-md-grow-0">
+                    <Button 
+                      variant="warning" 
+                      className="flex-fill flex-md-grow-0"
+                      as={Link}
+                      to="/admin/dashboard"
+                    >
                       Admin Paneli
                     </Button>
                   )}

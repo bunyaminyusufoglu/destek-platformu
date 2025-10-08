@@ -1,15 +1,38 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Container, Row, Col, Card, Button, Badge, Alert, Spinner, Modal, Form } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Badge, Alert, Spinner, Modal, Form, InputGroup, Collapse } from 'react-bootstrap';
 import { supportAPI, offerAPI } from '../../services/api';
-import { FaUser, FaDollarSign, FaHandshake } from 'react-icons/fa';
+import { 
+  FaUser, 
+  FaDollarSign, 
+  FaHandshake, 
+  FaSearch, 
+  FaFilter, 
+  FaTimes,
+  FaTag,
+  FaSortAmountDown
+} from 'react-icons/fa';
 
 const AvailableRequests = () => {
   const [requests, setRequests] = useState([]);
+  const [filteredRequests, setFilteredRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [sendingOffer, setSendingOffer] = useState(false);
+  
+  // Filtreleme ve arama state'leri
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    category: '',
+    priority: '',
+    minBudget: '',
+    maxBudget: '',
+    sortBy: 'newest', // newest, oldest, budget_high, budget_low
+    skills: []
+  });
+  const [skillInput, setSkillInput] = useState('');
 
   const [offerForm, setOfferForm] = useState({
     message: '',
@@ -17,19 +40,113 @@ const AvailableRequests = () => {
     estimatedDuration: ''
   });
 
+  // Kategori ve öncelik seçenekleri
+  const categories = [
+    'Web Geliştirme', 'Mobil Uygulama', 'Veritabanı', 'UI/UX Tasarım',
+    'Sistem Yönetimi', 'Güvenlik', 'E-ticaret', 'API Geliştirme', 'DevOps', 'Diğer'
+  ];
+
+  const priorities = [
+    { value: '', label: 'Tümü' },
+    { value: 'low', label: 'Düşük', color: 'success' },
+    { value: 'medium', label: 'Orta', color: 'warning' },
+    { value: 'high', label: 'Yüksek', color: 'danger' }
+  ];
+
+  const sortOptions = [
+    { value: 'newest', label: 'En Yeni' },
+    { value: 'oldest', label: 'En Eski' },
+    { value: 'budget_high', label: 'Bütçe (Yüksek)' },
+    { value: 'budget_low', label: 'Bütçe (Düşük)' }
+  ];
+
   const loadAvailableRequests = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
       const data = await supportAPI.getRequests();
       // Sadece açık talepleri göster
-      setRequests(data.filter(req => req.status === 'open'));
+      const openRequests = data.filter(req => req.status === 'open');
+      setRequests(openRequests);
+      setFilteredRequests(openRequests);
     } catch (err) {
       setError('Talepler yüklenirken hata oluştu');
     } finally {
       setLoading(false);
     }
   }, []);
+
+  // Filtreleme ve arama fonksiyonu
+  const applyFilters = useCallback(() => {
+    let filtered = [...requests];
+
+    // Arama terimi filtresi
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter(request => 
+        request.title.toLowerCase().includes(searchLower) ||
+        request.description.toLowerCase().includes(searchLower) ||
+        request.user?.name?.toLowerCase().includes(searchLower) ||
+        (request.skills && request.skills.some(skill => 
+          skill.toLowerCase().includes(searchLower)
+        ))
+      );
+    }
+
+    // Kategori filtresi
+    if (filters.category) {
+      filtered = filtered.filter(request => request.category === filters.category);
+    }
+
+    // Öncelik filtresi
+    if (filters.priority) {
+      filtered = filtered.filter(request => request.priority === filters.priority);
+    }
+
+    // Bütçe filtresi
+    if (filters.minBudget) {
+      filtered = filtered.filter(request => request.budget >= parseInt(filters.minBudget));
+    }
+    if (filters.maxBudget) {
+      filtered = filtered.filter(request => request.budget <= parseInt(filters.maxBudget));
+    }
+
+    // Yetenek filtresi
+    if (filters.skills.length > 0) {
+      filtered = filtered.filter(request => 
+        request.skills && filters.skills.every(skill => 
+          request.skills.some(requestSkill => 
+            requestSkill.toLowerCase().includes(skill.toLowerCase())
+          )
+        )
+      );
+    }
+
+    // Sıralama
+    switch (filters.sortBy) {
+      case 'newest':
+        filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        break;
+      case 'oldest':
+        filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        break;
+      case 'budget_high':
+        filtered.sort((a, b) => b.budget - a.budget);
+        break;
+      case 'budget_low':
+        filtered.sort((a, b) => a.budget - b.budget);
+        break;
+      default:
+        break;
+    }
+
+    setFilteredRequests(filtered);
+  }, [requests, searchTerm, filters]);
+
+  // Filtreler değiştiğinde otomatik filtreleme
+  useEffect(() => {
+    applyFilters();
+  }, [applyFilters]);
 
   useEffect(() => {
     loadAvailableRequests();
@@ -79,6 +196,49 @@ const AvailableRequests = () => {
     }
   };
 
+  // Filtreleri temizleme fonksiyonu
+  const clearFilters = () => {
+    setSearchTerm('');
+    setFilters({
+      category: '',
+      priority: '',
+      minBudget: '',
+      maxBudget: '',
+      sortBy: 'newest',
+      skills: []
+    });
+    setSkillInput('');
+  };
+
+  // Yetenek ekleme fonksiyonu
+  const addSkill = () => {
+    if (skillInput.trim() && !filters.skills.includes(skillInput.trim())) {
+      setFilters(prev => ({
+        ...prev,
+        skills: [...prev.skills, skillInput.trim()]
+      }));
+      setSkillInput('');
+    }
+  };
+
+  // Yetenek silme fonksiyonu
+  const removeSkill = (skillToRemove) => {
+    setFilters(prev => ({
+      ...prev,
+      skills: prev.skills.filter(skill => skill !== skillToRemove)
+    }));
+  };
+
+  // Aktif filtre sayısını hesapla
+  const getActiveFiltersCount = () => {
+    let count = 0;
+    if (filters.category) count++;
+    if (filters.priority) count++;
+    if (filters.minBudget || filters.maxBudget) count++;
+    if (filters.skills.length > 0) count++;
+    return count;
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('tr-TR', {
       day: '2-digit',
@@ -114,7 +274,8 @@ const AvailableRequests = () => {
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h2>Açık Destek Talepleri</h2>
           <Badge bg="info" className="fs-6">
-            {requests.length} açık talep
+            {filteredRequests.length} talep gösteriliyor
+            {filteredRequests.length !== requests.length && ` (${requests.length} toplam)`}
           </Badge>
         </div>
 
@@ -125,15 +286,181 @@ const AvailableRequests = () => {
           </Alert>
         )}
 
-        {requests.length === 0 && !error && (
+        {/* Arama ve Filtreleme Bölümü */}
+        <Card className="mb-4 border-0 shadow-sm">
+          <Card.Header className="bg-white border-bottom">
+            <div className="d-flex justify-content-between align-items-center">
+              <h6 className="mb-0">
+                <FaSearch className="me-2" />
+                Gelişmiş Arama ve Filtreleme
+              </h6>
+              <Button
+                variant="outline-primary"
+                size="sm"
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                <FaFilter className="me-1" />
+                Filtreler {getActiveFiltersCount() > 0 && `(${getActiveFiltersCount()})`}
+              </Button>
+            </div>
+          </Card.Header>
+          
+          {/* Arama Kutusu */}
+          <Card.Body>
+            <Row>
+              <Col md={8}>
+                <InputGroup>
+                  <InputGroup.Text>
+                    <FaSearch />
+                  </InputGroup.Text>
+                  <Form.Control
+                    type="text"
+                    placeholder="Başlık, açıklama, kullanıcı adı veya yetenek ara..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  {searchTerm && (
+                    <Button
+                      variant="outline-secondary"
+                      onClick={() => setSearchTerm('')}
+                    >
+                      <FaTimes />
+                    </Button>
+                  )}
+                </InputGroup>
+              </Col>
+              <Col md={4}>
+                <Form.Select
+                  value={filters.sortBy}
+                  onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
+                >
+                  {sortOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      <FaSortAmountDown className="me-1" />
+                      {option.label}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Col>
+            </Row>
+
+            {/* Filtreler */}
+            <Collapse in={showFilters}>
+              <div className="mt-3 pt-3 border-top">
+                <Row>
+                  <Col md={3}>
+                    <Form.Group>
+                      <Form.Label><FaTag className="me-1" />Kategori</Form.Label>
+                      <Form.Select
+                        value={filters.category}
+                        onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
+                      >
+                        <option value="">Tüm Kategoriler</option>
+                        {categories.map(category => (
+                          <option key={category} value={category}>{category}</option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                  
+                  <Col md={3}>
+                    <Form.Group>
+                      <Form.Label>Öncelik</Form.Label>
+                      <Form.Select
+                        value={filters.priority}
+                        onChange={(e) => setFilters(prev => ({ ...prev, priority: e.target.value }))}
+                      >
+                        {priorities.map(priority => (
+                          <option key={priority.value} value={priority.value}>
+                            {priority.label}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+
+                  <Col md={3}>
+                    <Form.Group>
+                      <Form.Label><FaDollarSign className="me-1" />Min. Bütçe</Form.Label>
+                      <Form.Control
+                        type="number"
+                        placeholder="0"
+                        value={filters.minBudget}
+                        onChange={(e) => setFilters(prev => ({ ...prev, minBudget: e.target.value }))}
+                      />
+                    </Form.Group>
+                  </Col>
+
+                  <Col md={3}>
+                    <Form.Group>
+                      <Form.Label><FaDollarSign className="me-1" />Max. Bütçe</Form.Label>
+                      <Form.Control
+                        type="number"
+                        placeholder="∞"
+                        value={filters.maxBudget}
+                        onChange={(e) => setFilters(prev => ({ ...prev, maxBudget: e.target.value }))}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                <Row className="mt-3">
+                  <Col md={8}>
+                    <Form.Group>
+                      <Form.Label>Yetenek Filtresi</Form.Label>
+                      <div className="d-flex gap-2">
+                        <Form.Control
+                          type="text"
+                          placeholder="Yetenek ekle (örn: React, Node.js)"
+                          value={skillInput}
+                          onChange={(e) => setSkillInput(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
+                        />
+                        <Button variant="outline-primary" onClick={addSkill}>
+                          Ekle
+                        </Button>
+                      </div>
+                      {filters.skills.length > 0 && (
+                        <div className="mt-2 d-flex flex-wrap gap-1">
+                          {filters.skills.map((skill, index) => (
+                            <Badge key={index} bg="primary" className="d-flex align-items-center gap-1">
+                              {skill}
+                              <FaTimes
+                                style={{ cursor: 'pointer', fontSize: '0.7em' }}
+                                onClick={() => removeSkill(skill)}
+                              />
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </Form.Group>
+                  </Col>
+                  <Col md={4} className="d-flex align-items-end">
+                    <Button variant="outline-secondary" onClick={clearFilters} className="w-100">
+                      <FaTimes className="me-1" />
+                      Filtreleri Temizle
+                    </Button>
+                  </Col>
+                </Row>
+              </div>
+            </Collapse>
+          </Card.Body>
+        </Card>
+
+        {filteredRequests.length === 0 && !loading && (
           <Alert variant="info" className="mb-4">
-            <Alert.Heading>Henüz açık talep yok</Alert.Heading>
-            Şu anda değerlendirilmeyi bekleyen destek talebi bulunmamaktadır.
+            <Alert.Heading>
+              {searchTerm || getActiveFiltersCount() > 0 ? 'Arama sonucu bulunamadı' : 'Henüz açık talep yok'}
+            </Alert.Heading>
+            {searchTerm || getActiveFiltersCount() > 0 
+              ? 'Arama kriterlerinizi değiştirerek tekrar deneyin.'
+              : 'Şu anda değerlendirilmeyi bekleyen destek talebi bulunmamaktadır.'
+            }
           </Alert>
         )}
 
         <Row>
-          {requests.map((request) => (
+          {filteredRequests.map((request) => (
             <Col lg={6} xl={4} className="mb-4" key={request._id}>
               <Card className="h-100 border-0 shadow-sm">
                 <Card.Header className="bg-white border-bottom">
