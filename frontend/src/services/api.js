@@ -145,6 +145,12 @@ export const offerAPI = {
     const response = await api.put(`/offers/${offerId}/reject`);
     return response.data;
   },
+
+  // Tek teklif detayını getir
+  getOfferById: async (offerId) => {
+    const response = await api.get(`/offers/${offerId}`);
+    return response.data;
+  },
 };
 
 // Message API functions

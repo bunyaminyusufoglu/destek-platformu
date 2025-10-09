@@ -82,6 +82,7 @@ router.get("/request/:requestId", authMiddleware, validateObjectId("requestId"),
       adminApprovalStatus: "approved"
     })
       .populate("expert", "name email skills")
+      .populate("supportRequest", "title")
       .sort({ createdAt: -1 });
 
     res.json(offers);
@@ -109,6 +110,33 @@ router.get("/my-offers", authMiddleware, async (req, res) => {
 
     res.json(offers);
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Tek teklif detayını getir
+router.get("/:offerId", authMiddleware, validateObjectId("offerId"), async (req, res) => {
+  try {
+    const offer = await Offer.findById(req.params.offerId)
+      .populate("supportRequest", "title description budget deadline status user")
+      .populate("expert", "name email skills");
+
+    if (!offer) {
+      return res.status(404).json({ message: "Teklif bulunamadı" });
+    }
+
+    // Sadece talep sahibi veya teklif sahibi bu teklifi görebilir
+    const user = await User.findById(req.user.id);
+    const isRequestOwner = offer.supportRequest.user.toString() === req.user.id;
+    const isOfferOwner = offer.expert._id.toString() === req.user.id;
+
+    if (!isRequestOwner && !isOfferOwner && !user.isAdmin) {
+      return res.status(403).json({ message: "Bu teklifi görme yetkiniz yok" });
+    }
+
+    res.json(offer);
+  } catch (err) {
+    console.error('Teklif detayı hatası:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -142,6 +170,15 @@ router.put("/:offerId/accept", authMiddleware, validateObjectId("offerId"), asyn
     if (!offer) {
       return res.status(404).json({ message: "Teklif bulunamadı" });
     }
+
+    // Debug logging
+    console.log('Offer accept attempt:', {
+      offerId: req.params.offerId,
+      userId: req.user.id,
+      offerStatus: offer.status,
+      adminApprovalStatus: offer.adminApprovalStatus,
+      supportRequestUser: offer.supportRequest.user.toString()
+    });
 
     // Sadece talep sahibi kabul edebilir
     if (offer.supportRequest.user.toString() !== req.user.id) {

@@ -1,12 +1,15 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Container, Row, Col, Card, Badge, Alert, Spinner, Button, Modal } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import { offerAPI, supportAPI } from '../../services/api';
 import { FaDollarSign, FaClock } from 'react-icons/fa';
 
 const IncomingOffers = () => {
+  const navigate = useNavigate();
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [selectedOffer, setSelectedOffer] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
@@ -32,7 +35,9 @@ const IncomingOffers = () => {
       
       setOffers(allOffers);
     } catch (err) {
-      setError('Teklifler yüklenirken hata oluştu');
+      console.error('Teklifler yükleme hatası:', err);
+      const errorMessage = err.response?.data?.message || err.message || 'Teklifler yüklenirken hata oluştu';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -43,38 +48,40 @@ const IncomingOffers = () => {
     window.scrollTo(0, 0);
   }, [loadOffers]);
 
-  const handleAcceptOffer = async (offerId) => {
-    try {
-      setActionLoading(true);
-      await offerAPI.acceptOffer(offerId);
-      setShowModal(false);
-      setSelectedOffer(null);
-      await loadOffers(); // Listeyi yenile
-    } catch (err) {
-      setError('Teklif kabul edilirken hata oluştu');
-    } finally {
-      setActionLoading(false);
-    }
+  const handleAcceptOffer = (offerId) => {
+    // Ödeme sayfasına yönlendir
+    navigate(`/payment?offerId=${offerId}`);
   };
 
   const handleRejectOffer = async (offerId) => {
     try {
       setActionLoading(true);
+      setError(''); // Clear any previous errors
+      setSuccess(''); // Clear any previous success messages
       await offerAPI.rejectOffer(offerId);
+      setSuccess('Teklif başarıyla reddedildi.');
       setShowModal(false);
       setSelectedOffer(null);
       await loadOffers(); // Listeyi yenile
     } catch (err) {
-      setError('Teklif reddedilirken hata oluştu');
+      console.error('Teklif reddetme hatası:', err);
+      const errorMessage = err.response?.data?.message || err.message || 'Teklif reddedilirken hata oluştu';
+      setError(errorMessage);
     } finally {
       setActionLoading(false);
     }
   };
 
-  const openOfferModal = (offer) => {
-    setSelectedOffer(offer);
-    setShowModal(true);
-  };
+
+  // Clear success message after 5 seconds
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        setSuccess('');
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
 
   const getOfferStatusBadge = (status) => {
     const statusConfig = {
@@ -123,6 +130,13 @@ const IncomingOffers = () => {
           </Alert>
         )}
 
+        {success && (
+          <Alert variant="success" className="mb-4">
+            <Alert.Heading>Başarılı!</Alert.Heading>
+            {success}
+          </Alert>
+        )}
+
         {offers.length === 0 && !error ? (
           <Alert variant="info">Henüz hiç teklif almadınız.</Alert>
         ) : (
@@ -154,10 +168,10 @@ const IncomingOffers = () => {
                         <Button 
                           variant="success" 
                           size="sm" 
-                          onClick={() => openOfferModal(offer)}
+                          onClick={() => handleAcceptOffer(offer._id)}
                           className="flex-fill"
                         >
-                          Kabul Et
+                          Ödeme Yap ve Kabul Et
                         </Button>
                         <Button 
                           variant="outline-danger" 
@@ -233,7 +247,7 @@ const IncomingOffers = () => {
                   onClick={() => handleAcceptOffer(selectedOffer._id)}
                   disabled={actionLoading}
                 >
-                  {actionLoading ? 'İşleniyor...' : 'Kabul Et'}
+                  Ödeme Yap ve Kabul Et
                 </Button>
               </>
             )}

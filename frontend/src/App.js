@@ -11,6 +11,7 @@ import Settings from './components/shared/Settings';
 import AvailableRequests from './components/expert/AvailableRequests';
 import MyOffers from './components/expert/MyOffers';
 import IncomingOffers from './components/user/IncomingOffers';
+import PaymentPage from './components/user/PaymentPage';
 import ProtectedRoute from './components/shared/ProtectedRoute';
 import Layout from './components/shared/Layout';
 import AdminLayout from './components/admin/AdminLayout';
@@ -168,6 +169,16 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <IncomingOffers />
+                  </Layout>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/payment" 
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <PaymentPage />
                   </Layout>
                 </ProtectedRoute>
               } 
