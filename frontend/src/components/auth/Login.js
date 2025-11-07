@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { useAuth } from '../../contexts/AuthContext';
 import { FaExclamationTriangle } from 'react-icons/fa';
@@ -11,8 +11,15 @@ const Login = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const { login, clearError, isAuthenticated } = useAuth();
 
-  const { login, clearError } = useAuth();
+  // Eğer zaten giriş yapılmışsa dashboard'a yönlendir
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,12 +36,21 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    clearError();
 
     try {
-      await login(formData);
-      window.location.href = '/dashboard';
+      console.log('Login attempt:', { email: formData.email });
+      const response = await login(formData);
+      console.log('Login successful:', response);
+      
+      // Başarılı giriş sonrası kısa bir bekleme ve yönlendirme
+      setTimeout(() => {
+        navigate('/dashboard', { replace: true });
+      }, 100);
     } catch (err) {
-      setError(err.message);
+      console.error('Login error:', err);
+      const errorMessage = err.message || 'Giriş yapılırken bir hata oluştu';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

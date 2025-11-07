@@ -130,10 +130,25 @@ app.set('io', io);
 
 const PORT = process.env.PORT || 5000;
 
+// Environment variables kontrolü
+if (!process.env.JWT_SECRET) {
+  console.error('❌ ERROR: JWT_SECRET environment variable is not defined!');
+  console.error('Please create a .env file in the backend directory with JWT_SECRET');
+  console.error('You can copy .env.example and update the values');
+  process.exit(1);
+}
+
+if (!process.env.MONGO_URI) {
+  console.error('❌ ERROR: MONGO_URI environment variable is not defined!');
+  console.error('Please create a .env file in the backend directory with MONGO_URI');
+  process.exit(1);
+}
+
 // Database bağlantısı
 connectDB();
 
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🔌 Socket.io server ready`);
+  console.log(`✅ Environment variables loaded successfully`);
 });

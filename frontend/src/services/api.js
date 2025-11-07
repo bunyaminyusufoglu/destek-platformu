@@ -38,17 +38,25 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Login endpoint'inde 401 hatası için yönlendirme yapma
+    if (error.response?.status === 401 && error.config.url === '/auth/login') {
+      // Login sayfasında zaten olduğumuz için yönlendirme yapmıyoruz
+      return Promise.reject(error);
+    }
+    
     if (error.response?.status === 401) {
       // Admin endpoint'leri için admin token temizle
-      if (error.config.url.startsWith('/admin')) {
+      if (error.config.url && error.config.url.startsWith('/admin')) {
         localStorage.removeItem('adminToken');
         localStorage.removeItem('user');
         window.location.href = '/admin';
       } else {
-        // Normal endpoint'ler için user token temizle
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
+        // Normal endpoint'ler için user token temizle (login hariç)
+        if (error.config.url && !error.config.url.includes('/auth/login')) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+        }
       }
     }
     return Promise.reject(error);
@@ -65,7 +73,32 @@ export const authAPI = {
 
   // Giriş yap
   login: async (credentials) => {
-    const response = await api.post('/auth/login', credentials);
+    try {
+      console.log('API: Login request to /auth/login', { email: credentials.email });
+      const response = await api.post('/auth/login', credentials);
+      console.log('API: Login response', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('API: Login error', error.response?.data || error.message);
+      throw error;
+    }
+  },
+
+  // Profil bilgilerini getir
+  getProfile: async () => {
+    const response = await api.get('/auth/profile');
+    return response.data;
+  },
+
+  // Profil güncelle
+  updateProfile: async (profileData) => {
+    const response = await api.put('/auth/profile', profileData);
+    return response.data;
+  },
+
+  // Şifre değiştir
+  changePassword: async (passwordData) => {
+    const response = await api.put('/auth/change-password', passwordData);
     return response.data;
   },
 };
