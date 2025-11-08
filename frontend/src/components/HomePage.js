@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Row, Col, Button, Card } from 'react-bootstrap';
-import { FaUsers, FaHandsHelping, FaShieldAlt, FaRocket } from 'react-icons/fa';
+import { Container, Row, Col, Card, Accordion } from 'react-bootstrap';
+import { FaUsers, FaHandsHelping, FaShieldAlt, FaRocket, FaStar, FaTools, FaCheckCircle } from 'react-icons/fa';
 
 const HomePage = () => {
   return (
@@ -106,6 +106,137 @@ const HomePage = () => {
         </Container>
       </section>
 
+      {/* CTA Section */}
+      <section className="cta-section">
+        <Container>
+          <Row className="text-center">
+            <Col md={8} className="mx-auto">
+              <h2 className="cta-title">Hemen Başlayın</h2>
+              <p className="cta-subtitle">
+                Teknik sorunlarınızı çözmek için bugün kayıt olun.
+              </p>
+              <div className="cta-buttons">
+                <Link to="/register" className="cta-btn-primary">
+                  <FaRocket className="me-2" />
+                  Ücretsiz Kayıt Ol
+                </Link>
+                <Link to="/login" className="cta-btn-secondary">
+                  Zaten Hesabım Var
+                </Link>
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      </section>
+
+      {/* Stats Section */}
+      <section className="home-stats-section">
+        <Container>
+          <Row className="g-3">
+            <Col xs={6} md={3}>
+              <div className="home-stats-card">
+                <div className="home-stats-icon bg-success-subtle text-success">
+                  <FaUsers />
+                </div>
+                <div>
+                  <div className="home-stats-value">1.200+</div>
+                  <div className="home-stats-label">Kayıtlı Kullanıcı</div>
+                </div>
+              </div>
+            </Col>
+            <Col xs={6} md={3}>
+              <div className="home-stats-card">
+                <div className="home-stats-icon bg-primary-subtle text-primary">
+                  <FaTools />
+                </div>
+                <div>
+                  <div className="home-stats-value">350+</div>
+                  <div className="home-stats-label">Uzman</div>
+                </div>
+              </div>
+            </Col>
+            <Col xs={6} md={3}>
+              <div className="home-stats-card">
+                <div className="home-stats-icon bg-warning-subtle text-warning">
+                  <FaCheckCircle />
+                </div>
+                <div>
+                  <div className="home-stats-value">1.500+</div>
+                  <div className="home-stats-label">Çözülen Talep</div>
+                </div>
+              </div>
+            </Col>
+            <Col xs={6} md={3}>
+              <div className="home-stats-card">
+                <div className="home-stats-icon bg-info-subtle text-info">
+                  <FaStar />
+                </div>
+                <div>
+                  <div className="home-stats-value">%98</div>
+                  <div className="home-stats-label">Memnuniyet</div>
+                </div>
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="testimonials-section">
+        <Container>
+          <Row className="text-center mb-4">
+            <Col>
+              <h2 className="section-title">Kullanıcılarımız Ne Diyor?</h2>
+              <p className="section-subtitle">Gerçek deneyimler, gerçek sonuçlar.</p>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={4} className="mb-4">
+              <Card className="testimonial-card h-100">
+                <Card.Body>
+                  <div className="d-flex align-items-center mb-3 gap-2 text-warning">
+                    <FaStar /><FaStar /><FaStar /><FaStar /><FaStar />
+                  </div>
+                  <Card.Text>
+                    “Sorunum birkaç saat içinde çözüldü. Süreç çok kolay ve güven vericiydi.”
+                  </Card.Text>
+                  <div className="testimonial-user">Ali K.</div>
+                  <small className="text-muted">Web Geliştirici</small>
+                </Card.Body>
+              </Card>
+            </Col>
+            <Col md={4} className="mb-4">
+              <Card className="testimonial-card h-100">
+                <Card.Body>
+                  <div className="d-flex align-items-center mb-3 gap-2 text-warning">
+                    <FaStar /><FaStar /><FaStar /><FaStar /><FaStar />
+                  </div>
+                  <Card.Text>
+                    “Uzmanlar çok ilgiliydi. Projem için doğru yönlendirmeler aldım.”
+                  </Card.Text>
+                  <div className="testimonial-user">Ece T.</div>
+                  <small className="text-muted">Girişimci</small>
+                </Card.Body>
+              </Card>
+            </Col>
+            <Col md={4} className="mb-4">
+              <Card className="testimonial-card h-100">
+                <Card.Body>
+                  <div className="d-flex align-items-center mb-3 gap-2 text-warning">
+                    <FaStar /><FaStar /><FaStar /><FaStar /><FaStar />
+                  </div>
+                  <Card.Text>
+                    “Güvenli ve hızlı. Artık teknik işler için ilk durağım burası.”
+                  </Card.Text>
+                  <div className="testimonial-user">Murat D.</div>
+                  <small className="text-muted">Freelancer</small>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+        </Container>
+      </section>
+
       {/* How It Works Section */}
       <section className="steps-section">
         <Container>
@@ -147,24 +278,37 @@ const HomePage = () => {
         </Container>
       </section>
 
-      {/* CTA Section */}
-      <section className="cta-section">
+      {/* FAQ Section */}
+      <section className="faq-section">
         <Container>
-          <Row className="text-center">
-            <Col md={8} className="mx-auto">
-              <h2 className="cta-title">Hemen Başlayın</h2>
-              <p className="cta-subtitle">
-                Teknik sorunlarınızı çözmek için bugün kayıt olun.
-              </p>
-              <div className="cta-buttons">
-                <Link to="/register" className="cta-btn-primary">
-                  <FaRocket className="me-2" />
-                  Ücretsiz Kayıt Ol
-                </Link>
-                <Link to="/login" className="cta-btn-secondary">
-                  Zaten Hesabım Var
-                </Link>
-              </div>
+          <Row className="text-center mb-4">
+            <Col>
+              <h2 className="section-title">Sık Sorulan Sorular</h2>
+              <p className="section-subtitle">Kısa cevaplarla aklınızdaki sorular.</p>
+            </Col>
+          </Row>
+          <Row className="justify-content-center">
+            <Col lg={12}>
+              <Accordion defaultActiveKey="0" flush>
+                <Accordion.Item eventKey="0">
+                  <Accordion.Header>Nasıl destek talebi oluştururum?</Accordion.Header>
+                  <Accordion.Body>
+                    Kayıt olup giriş yaptıktan sonra menüden “Yeni Destek Talebi Oluştur” bölümüne giderek birkaç adımda talebinizi iletebilirsiniz.
+                  </Accordion.Body>
+                </Accordion.Item>
+                <Accordion.Item eventKey="1">
+                  <Accordion.Header>Uzmanlar nasıl seçiliyor?</Accordion.Header>
+                  <Accordion.Body>
+                    Uzmanlarımız başvurularını gönderir. Profil, değerlendirme ve teklif içeriğine göre istediğiniz uzmanı seçebilirsiniz.
+                  </Accordion.Body>
+                </Accordion.Item>
+                <Accordion.Item eventKey="2">
+                  <Accordion.Header>Güvenlik ve gizlilik nasıl sağlanıyor?</Accordion.Header>
+                  <Accordion.Body>
+                    Tüm iletişim ve veriler güvenli altyapı üzerinde saklanır, kişisel bilgileriniz gizli tutulur.
+                  </Accordion.Body>
+                </Accordion.Item>
+              </Accordion>
             </Col>
           </Row>
         </Container>

@@ -1,19 +1,24 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Container, Navbar, Nav, Button } from 'react-bootstrap';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Header = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
-  // Admin sayfalarında header gösterme
-  if (location.pathname.startsWith('/admin')) {
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isDashboardRoute = location.pathname.startsWith('/dashboard');
+  const isHomeRoute = location.pathname === '/';
+
+  // Admin sayfalarında ve dashboard'ta header gösterme
+  if (isAdminRoute || isDashboardRoute) {
     return null;
   }
 
-  // Giriş yapmış kullanıcılar için header gösterme
-  if (isAuthenticated) {
+  // Giriş yapmış kullanıcılar için yalnızca ana sayfada header göster
+  if (isAuthenticated && !isHomeRoute) {
     return null;
   }
 
@@ -33,16 +38,39 @@ const Header = () => {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
-            <Nav.Link as={Link} to="/login" className="nav-link-custom">
-              <Button size="sm" className="login-btn">
-                Giriş Yap
-              </Button>
-            </Nav.Link>
-            <Nav.Link as={Link} to="/register" className="nav-link-custom">
-              <Button size="sm" className="register-btn">
-                Kayıt Ol
-              </Button>
-            </Nav.Link>
+            {isAuthenticated ? (
+              <>
+                <Nav.Link as={Link} to="/dashboard" className="nav-link-custom">
+                  <Button size="sm" className="login-btn">
+                    Panel
+                  </Button>
+                </Nav.Link>
+                <Nav.Link
+                  onClick={() => {
+                    logout();
+                    navigate('/');
+                  }}
+                  className="nav-link-custom"
+                >
+                  <Button size="sm" variant="outline-danger">
+                    Çıkış Yap
+                  </Button>
+                </Nav.Link>
+              </>
+            ) : (
+              <>
+                <Nav.Link as={Link} to="/login" className="nav-link-custom">
+                  <Button size="sm" className="login-btn">
+                    Giriş Yap
+                  </Button>
+                </Nav.Link>
+                <Nav.Link as={Link} to="/register" className="nav-link-custom">
+                  <Button size="sm" className="register-btn">
+                    Kayıt Ol
+                  </Button>
+                </Nav.Link>
+              </>
+            )}
           </Nav>
         </Navbar.Collapse>
       </Container>

@@ -37,7 +37,7 @@ const PublicRoute = ({ children }) => {
     return <div className="loading">Yükleniyor...</div>;
   }
   
-  return !isAuthenticated ? children : <Navigate to="/login" />;
+  return !isAuthenticated ? children : <Navigate to="/dashboard" replace />;
 };
 
 function App() {
