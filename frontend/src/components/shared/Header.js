@@ -52,7 +52,7 @@ const Header = () => {
                   }}
                   className="nav-link-custom"
                 >
-                  <Button size="sm" variant="outline-danger">
+                  <Button size="sm" className="logout-btn">
                     Çıkış Yap
                   </Button>
                 </Nav.Link>

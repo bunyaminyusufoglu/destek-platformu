@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Alert, Spinner, Modal, Form, InputGroup, Collapse } from 'react-bootstrap';
 import { supportAPI, offerAPI } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 import { 
   FaUser, 
   FaDollarSign, 
@@ -13,11 +14,13 @@ import {
 } from 'react-icons/fa';
 
 const AvailableRequests = () => {
+  const { isExpert } = useAuth();
   const [requests, setRequests] = useState([]);
   const [filteredRequests, setFilteredRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [sendingOffer, setSendingOffer] = useState(false);
   
@@ -65,10 +68,10 @@ const AvailableRequests = () => {
       setLoading(true);
       setError('');
       const data = await supportAPI.getRequests();
-      // Sadece açık talepleri göster
-      const openRequests = data.filter(req => req.status === 'open');
-      setRequests(openRequests);
-      setFilteredRequests(openRequests);
+      // Sadece teklif kabul eden (open) talepleri göster
+      const openOnly = (data || []).filter(req => req.status === 'open');
+      setRequests(openOnly);
+      setFilteredRequests(openOnly);
     } catch (err) {
       setError('Talepler yüklenirken hata oluştu');
     } finally {
@@ -159,6 +162,10 @@ const AvailableRequests = () => {
   }, [loadAvailableRequests]);
 
   const handleShowModal = (request) => {
+    if (!isExpert) {
+      alert('Teklif vermek için uzman olarak giriş yapmalısınız.');
+      return;
+    }
     setSelectedRequest(request);
     setOfferForm({ message: '', proposedPrice: '', estimatedDuration: '' });
     setShowModal(true);
@@ -170,10 +177,33 @@ const AvailableRequests = () => {
     setOfferForm({ message: '', proposedPrice: '', estimatedDuration: '' });
   };
 
+  const handleShowDetails = (request) => {
+    setSelectedRequest(request);
+    setShowDetailsModal(true);
+  };
+
+  const handleCloseDetails = () => {
+    setShowDetailsModal(false);
+    setSelectedRequest(null);
+  };
+
   const handleOfferSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedRequest || !offerForm.message.trim() || !offerForm.proposedPrice || !offerForm.estimatedDuration.trim()) {
+    if (!selectedRequest) {
+      alert('Bir talep seçilemedi. Lütfen tekrar deneyin.');
+      return;
+    }
+    if (!offerForm.message.trim() || !offerForm.proposedPrice || !offerForm.estimatedDuration.trim()) {
       alert('Lütfen tüm alanları doldurun');
+      return;
+    }
+    if (offerForm.message.trim().length < 10) {
+      alert('Teklif mesajı en az 10 karakter olmalıdır.');
+      return;
+    }
+    const price = parseFloat(offerForm.proposedPrice);
+    if (!Number.isFinite(price) || price <= 0) {
+      alert('Teklif fiyatı 0’dan büyük bir sayı olmalıdır.');
       return;
     }
 
@@ -182,15 +212,17 @@ const AvailableRequests = () => {
       await offerAPI.createOffer({
         supportRequestId: selectedRequest._id,
         message: offerForm.message.trim(),
-        proposedPrice: parseFloat(offerForm.proposedPrice),
+        proposedPrice: price,
         estimatedDuration: offerForm.estimatedDuration.trim()
       });
 
       alert('Teklifiniz başarıyla gönderildi!');
       handleCloseModal();
     } catch (err) {
-      console.error('Teklif gönderme hatası:', err);
-      alert('Teklif gönderilemedi. Lütfen tekrar deneyin.');
+      const data = err?.response?.data;
+      const serverMessage = data?.error || data?.message || err.message;
+      console.error('Teklif gönderme hatası:', serverMessage);
+      alert(serverMessage || 'Teklif gönderilemedi. Lütfen tekrar deneyin.');
     } finally {
       setSendingOffer(false);
     }
@@ -336,7 +368,6 @@ const AvailableRequests = () => {
                 >
                   {sortOptions.map(option => (
                     <option key={option.value} value={option.value}>
-                      <FaSortAmountDown className="me-1" />
                       {option.label}
                     </option>
                   ))}
@@ -525,7 +556,7 @@ const AvailableRequests = () => {
                     <Button 
                       variant="outline-primary" 
                       size="sm"
-                      onClick={() => {/* Talep detayını göster */}}
+                      onClick={() => handleShowDetails(request)}
                     >
                       Detayları Gör
                     </Button>
@@ -533,6 +564,7 @@ const AvailableRequests = () => {
                       variant="success" 
                       size="sm"
                       onClick={() => handleShowModal(request)}
+                      disabled={request.status !== 'open'}
                     >
                       <FaHandshake className="me-2" />
                       Teklif Ver
@@ -617,6 +649,39 @@ const AvailableRequests = () => {
               </Button>
             </div>
           </Form>
+        </Modal.Body>
+      </Modal>
+
+      {/* Talep Detay Modal */}
+      <Modal show={showDetailsModal} onHide={handleCloseDetails} size="md">
+        <Modal.Header closeButton>
+          <Modal.Title>Talep Detayları</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedRequest && (
+            <div>
+              <h5 className="mb-2">{selectedRequest.title}</h5>
+              <p className="text-muted">{selectedRequest.description}</p>
+              <div className="mb-2">
+                <small className="text-muted d-block">
+                  <strong>Talep Eden:</strong> {selectedRequest.user?.name}
+                </small>
+                <small className="text-muted d-block">
+                  <strong>Bütçe:</strong> {selectedRequest.budget}₺
+                </small>
+                <small className="text-muted d-block">
+                  <strong>Teslim:</strong> {formatDate(selectedRequest.deadline)}
+                </small>
+              </div>
+              {selectedRequest.skills && selectedRequest.skills.length > 0 && (
+                <div className="d-flex flex-wrap gap-1">
+                  {selectedRequest.skills.map((s, i) => (
+                    <Badge key={i} bg="secondary">{s}</Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </Modal.Body>
       </Modal>
     </div>

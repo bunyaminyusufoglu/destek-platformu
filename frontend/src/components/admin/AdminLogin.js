@@ -36,9 +36,9 @@ const AdminLogin = () => {
           isAdmin: true
         };
 
-        // LocalStorage'a kaydet
+        // LocalStorage'a kaydet (kullanıcı verisini etkilemeden)
         localStorage.setItem('adminToken', adminToken);
-        localStorage.setItem('user', JSON.stringify(adminUser));
+        localStorage.setItem('adminUser', JSON.stringify(adminUser));
 
         // Admin paneline yönlendir
         window.location.href = '/admin/dashboard';

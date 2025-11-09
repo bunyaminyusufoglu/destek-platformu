@@ -49,7 +49,11 @@ const IncomingOffers = () => {
   }, [loadOffers]);
 
   const handleAcceptOffer = (offerId) => {
-    // Ödeme sayfasına yönlendir
+    const isValidObjectId = typeof offerId === 'string' && /^[a-fA-F0-9]{24}$/.test(offerId);
+    if (!isValidObjectId) {
+      setError('Teklif kimliği geçersiz. Lütfen sayfayı yenileyip tekrar deneyin.');
+      return;
+    }
     navigate(`/payment?offerId=${offerId}`);
   };
 
@@ -65,7 +69,10 @@ const IncomingOffers = () => {
       await loadOffers(); // Listeyi yenile
     } catch (err) {
       console.error('Teklif reddetme hatası:', err);
-      const errorMessage = err.response?.data?.message || err.message || 'Teklif reddedilirken hata oluştu';
+      let errorMessage = err.response?.data?.message || err.message || 'Teklif reddedilirken hata oluştu';
+      if (typeof errorMessage === 'string' && /invalid\s+offerid/i.test(errorMessage)) {
+        errorMessage = 'Geçersiz teklif kimliği. Lütfen sayfayı yenileyin.';
+      }
       setError(errorMessage);
     } finally {
       setActionLoading(false);

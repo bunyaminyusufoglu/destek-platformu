@@ -41,12 +41,25 @@ app.use(cors({
 
 // Rate limiting
 app.set("trust proxy", 1);
+
+// Configure limiter with environment-aware thresholds
+const RATE_LIMIT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS || `${15 * 60 * 1000}`, 10);
+const RATE_LIMIT_MAX = parseInt(
+  process.env.RATE_LIMIT_MAX || (process.env.NODE_ENV === "production" ? "100" : "1000"),
+  10
+);
+
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 dakika
-  max: 100, // pencere başına 100 istek
+  windowMs: RATE_LIMIT_WINDOW_MS,
+  max: RATE_LIMIT_MAX,
   standardHeaders: true,
   legacyHeaders: false,
+  message: {
+    message: "Çok fazla istek gönderildi. Lütfen kısa bir süre sonra tekrar deneyin.",
+  },
 });
+
+// Apply limiter to API routes (relaxed in development via RATE_LIMIT_MAX)
 app.use("/api", apiLimiter);
 
 

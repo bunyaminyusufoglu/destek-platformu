@@ -22,14 +22,47 @@ export const AuthProvider = ({ children }) => {
       try {
         const token = localStorage.getItem('token');
         const userData = localStorage.getItem('user');
+        const adminToken = localStorage.getItem('adminToken');
         
+        // Token süresi dolmuş mu kontrol et (JWT exp)
+        const isTokenExpired = (jwtToken) => {
+          try {
+            const base64Url = jwtToken.split('.')[1];
+            if (!base64Url) return true;
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const payload = JSON.parse(decodeURIComponent(escape(window.atob(base64))));
+            if (!payload?.exp) return false; // exp yoksa süresiz varsay
+            const nowInSeconds = Math.floor(Date.now() / 1000);
+            return payload.exp < nowInSeconds;
+          } catch {
+            return true;
+          }
+        };
+
         if (token && userData) {
-          setUser(JSON.parse(userData));
+          if (!isTokenExpired(token)) {
+            setUser(JSON.parse(userData));
+          } else {
+            // Sadece kullanıcı token'ı geçersizse temizle
+            localStorage.removeItem('token');
+            // Admin oturumu varsa adminUser bilgisini koru
+            if (!adminToken) {
+              localStorage.removeItem('user');
+            }
+          }
+        } else {
+          // Kullanıcı token'ı yoksa müdahale etme; admin oturumu olabilir
+          if (token && !userData) {
+            localStorage.removeItem('token');
+          }
         }
       } catch (err) {
         console.error('Auth check error:', err);
         localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        // Admin oturumu varsa user bilgisini silme
+        if (!localStorage.getItem('adminToken')) {
+          localStorage.removeItem('user');
+        }
       } finally {
         setLoading(false);
       }

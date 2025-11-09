@@ -194,7 +194,7 @@ const Sidebar = () => {
         </Offcanvas.Header>
         <Offcanvas.Body className="sidebar-content">
           {/* Mobile Navigation Items */}
-          <Nav className="flex-column sidebar-nav">
+          <Nav className="flex-column sidebar-nav mt-2">
             {getNavigationItems().map((item, index) => (
               <Nav.Link 
                 key={index} 

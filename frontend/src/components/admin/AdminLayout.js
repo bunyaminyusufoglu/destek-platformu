@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {Nav, Offcanvas, Button } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { 
   FaTachometerAlt, 
   FaUsers, 
@@ -63,7 +64,8 @@ const AdminLayout = ({ children }) => {
               return (
                 <Nav.Link 
                   key={index} 
-                  href={item.path}
+                  as={Link}
+                  to={item.path}
                   className="sidebar-nav-link d-flex align-items-center mb-2"
                   style={{ cursor: 'pointer' }}
                 >
@@ -157,7 +159,8 @@ const AdminLayout = ({ children }) => {
               return (
                 <Nav.Link 
                   key={index} 
-                  href={item.path}
+                  as={Link}
+                  to={item.path}
                   className="sidebar-nav-link d-flex align-items-center mb-2"
                   onClick={() => setShowSidebar(false)}
                   style={{ cursor: 'pointer' }}

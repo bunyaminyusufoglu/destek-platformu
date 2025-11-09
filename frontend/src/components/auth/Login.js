@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { useAuth } from '../../contexts/AuthContext';
@@ -12,14 +12,10 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { login, clearError, isAuthenticated } = useAuth();
+  const { login, clearError, error: authError } = useAuth();
 
-  // Eğer zaten giriş yapılmışsa dashboard'a yönlendir
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/dashboard');
-    }
-  }, [isAuthenticated, navigate]);
+  // Not: Oturum açıkken login sayfasında otomatik yönlendirmeyi kaldırdık;
+  // yalnızca başarılı girişten sonra yönlendirme yapılacak.
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -91,11 +87,11 @@ const Login = () => {
                 </div>
 
                 <Form onSubmit={handleSubmit}>
-                  {error && (
+                  {(error || authError) && (
                     <Alert variant="danger" className="mb-3">
                       <div className="d-flex align-items-center">
                         <FaExclamationTriangle className="me-2" />
-                        {error}
+                        {error || authError}
                       </div>
                     </Alert>
                   )}

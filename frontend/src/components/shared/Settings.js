@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { FaTimes, FaExclamationTriangle } from 'react-icons/fa';
 
 const Settings = () => {
-  const { user, updateProfile, changePassword } = useAuth();
+  const { user, updateProfile, changePassword, isExpert } = useAuth();
   
   const [activeKey, setActiveKey] = useState('profile');
   const [loading, setLoading] = useState(false);
@@ -206,46 +206,48 @@ const Settings = () => {
                   </Col>
                 </Row>
 
-                <Form.Group className="mb-3">
-                  <Form.Label>Yetenekler (Skills)</Form.Label>
-                  <InputGroup className="mb-2">
-                    <Form.Control
-                      type="text"
-                      value={skillsInput}
-                      onChange={handleSkillsInputChange}
-                      placeholder="Yetenek ekle (örn: JavaScript, React)"
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          addSkill();
-                        }
-                      }}
-                    />
-                    <Button variant="outline-secondary" onClick={addSkill}>
-                      Ekle
-                    </Button>
-                  </InputGroup>
-                  {profileData.skills.length > 0 && (
-                    <div className="d-flex flex-wrap gap-2 mt-2">
-                      {profileData.skills.map((skill, index) => (
-                        <span
-                          key={index}
-                          className="badge bg-primary d-flex align-items-center gap-1"
-                          style={{ fontSize: '0.9rem', padding: '0.5rem' }}
-                        >
-                          {skill}
-                          <FaTimes
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => removeSkill(skill)}
-                          />
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  <Form.Text className="text-muted">
-                    Uzman iseniz, sahip olduğunuz yetenekleri ekleyin
-                  </Form.Text>
-                </Form.Group>
+                {isExpert && (
+                  <Form.Group className="mb-3">
+                    <Form.Label>Yetenekler (Skills)</Form.Label>
+                    <InputGroup className="mb-2">
+                      <Form.Control
+                        type="text"
+                        value={skillsInput}
+                        onChange={handleSkillsInputChange}
+                        placeholder="Yetenek ekle (örn: JavaScript, React)"
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            addSkill();
+                          }
+                        }}
+                      />
+                      <Button variant="outline-secondary" onClick={addSkill}>
+                        Ekle
+                      </Button>
+                    </InputGroup>
+                    {profileData.skills.length > 0 && (
+                      <div className="d-flex flex-wrap gap-2 mt-2">
+                        {profileData.skills.map((skill, index) => (
+                          <span
+                            key={index}
+                            className="badge bg-primary d-flex align-items-center gap-1"
+                            style={{ fontSize: '0.9rem', padding: '0.5rem' }}
+                          >
+                            {skill}
+                            <FaTimes
+                              style={{ cursor: 'pointer' }}
+                              onClick={() => removeSkill(skill)}
+                            />
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <Form.Text className="text-muted">
+                      Uzman iseniz, sahip olduğunuz yetenekleri ekleyin
+                    </Form.Text>
+                  </Form.Group>
+                )}
 
                 <div className="d-flex justify-content-end">
                   <Button variant="primary" type="submit" disabled={loading}>

@@ -22,12 +22,12 @@ export const AdminAuthProvider = ({ children }) => {
   const checkAdminAuth = () => {
     try {
       const adminToken = localStorage.getItem('adminToken');
-      const user = localStorage.getItem('user');
+      const storedAdminUser = localStorage.getItem('adminUser');
       
-      if (adminToken && user) {
+      if (adminToken && storedAdminUser) {
         try {
           const tokenData = JSON.parse(atob(adminToken));
-          const userData = JSON.parse(user);
+          const userData = JSON.parse(storedAdminUser);
           
           // Token'ın geçerli olup olmadığını kontrol et (24 saat)
           const tokenAge = Date.now() - tokenData.timestamp;
@@ -62,7 +62,7 @@ export const AdminAuthProvider = ({ children }) => {
     setAdminUser(null);
     setIsAdminAuthenticated(false);
     localStorage.removeItem('adminToken');
-    localStorage.removeItem('user');
+    localStorage.removeItem('adminUser');
   };
 
   const value = {

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Header from './components/shared/Header';
 import HomePage from './components/HomePage';
@@ -29,14 +29,18 @@ import OfferApproval from './components/admin/OfferApproval';
 import SupportRequestApproval from './components/admin/SupportRequestApproval';
 import { settingsAPI } from './services/api';
 
-// Public Route Component (sadece giriş yapmamış kullanıcılar)
 const PublicRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
-  
+  const location = useLocation();
+
+  if (loading && (location.pathname === '/login' || location.pathname === '/register')) {
+    return children;
+  }
+
   if (loading) {
     return <div className="loading">Yükleniyor...</div>;
   }
-  
+
   return !isAuthenticated ? children : <Navigate to="/dashboard" replace />;
 };
 
@@ -70,7 +74,6 @@ function App() {
           meta.setAttribute('content', seo.robots || 'index, follow');
         }
       } catch (e) {
-        // ignore
       }
     };
     applySeo();

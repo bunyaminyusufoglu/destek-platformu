@@ -38,27 +38,33 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Login endpoint'inde 401 hatası için yönlendirme yapma
-    if (error.response?.status === 401 && error.config.url === '/auth/login') {
-      // Login sayfasında zaten olduğumuz için yönlendirme yapmıyoruz
+    const status = error.response?.status;
+    const requestUrl = error.config?.url || '';
+    const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+
+    // Login isteği için 401 veya diğer hatalarda yönlendirme yapma
+    if (status === 401 && (requestUrl.includes('/auth/login') || currentPath === '/login')) {
       return Promise.reject(error);
     }
-    
-    if (error.response?.status === 401) {
-      // Admin endpoint'leri için admin token temizle
-      if (error.config.url && error.config.url.startsWith('/admin')) {
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('user');
-        window.location.href = '/admin';
+
+    // Genel 401 yönetimi
+    if (status === 401) {
+      const isAdminEndpoint = requestUrl.startsWith('/admin');
+
+      if (isAdminEndpoint) {
+        // Admin endpointlerinde otomatik yönlendirme veya token temizleme yapma.
+        // Hatanın sayfada yakalanmasına izin ver (kullanıcı atılmasın).
+        return Promise.reject(error);
       } else {
-        // Normal endpoint'ler için user token temizle (login hariç)
-        if (error.config.url && !error.config.url.includes('/auth/login')) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
+        // Normal endpoint'ler
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        if (currentPath !== '/login') {
           window.location.href = '/login';
         }
       }
     }
+
     return Promise.reject(error);
   }
 );

@@ -16,6 +16,7 @@ const PaymentPage = () => {
 
   // URL'den offer ID'sini al
   const offerId = new URLSearchParams(location.search).get('offerId');
+  const isValidObjectId = typeof offerId === 'string' && /^[a-fA-F0-9]{24}$/.test(offerId || '');
   
 
   const loadOfferDetails = useCallback(async () => {
@@ -41,14 +42,14 @@ const PaymentPage = () => {
   }, [offerId]);
 
   useEffect(() => {
-    if (!offerId) {
-      setError('Teklif bilgisi bulunamadı');
+    if (!offerId || !isValidObjectId) {
+      setError('Teklif bilgisi bulunamadı veya kimlik formatı geçersiz.');
       setLoading(false);
       return;
     }
 
     loadOfferDetails();
-  }, [offerId, loadOfferDetails]);
+  }, [offerId, loadOfferDetails, isValidObjectId]);
 
   const handlePayment = async () => {
     try {

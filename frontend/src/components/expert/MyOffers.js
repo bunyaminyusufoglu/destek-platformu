@@ -2,8 +2,10 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Container, Row, Col, Card, Badge, Alert, Spinner } from 'react-bootstrap';
 import { offerAPI } from '../../services/api';
 import { FaDollarSign, FaClock } from 'react-icons/fa';
+import { useAuth } from '../../contexts/AuthContext';
 
 const MyOffers = () => {
+  const { isAuthenticated, isExpert } = useAuth();
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -15,16 +17,37 @@ const MyOffers = () => {
       const data = await offerAPI.getMyAllOffers();
       setOffers(Array.isArray(data) ? data : data?.offers || []);
     } catch (err) {
-      setError('Teklifler yüklenirken hata oluştu');
+      const status = err?.response?.status;
+      const data = err?.response?.data;
+      const rawMessage = data?.error || data?.message || err.message || 'Teklifler yüklenirken hata oluştu';
+      const isInvalidId = typeof rawMessage === 'string' && /invalid\s+offerid/i.test(rawMessage);
+      if (status === 401) {
+        setError('Oturumunuz geçersiz. Lütfen uzman hesabınızla giriş yapın.');
+      } else if (status === 403) {
+        setError('Yalnızca uzmanlar teklif listesini görebilir.');
+      } else if (isInvalidId) {
+        // Bu hata listeyi engellemesin; sessizce boş liste göster
+        setOffers([]);
+        setError('');
+      } else {
+        setError(rawMessage);
+      }
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    loadOffers();
+    if (isAuthenticated && isExpert) {
+      loadOffers();
+    } else {
+      setLoading(false);
+      if (!isExpert) {
+        setError('Teklifleri görmek için uzman olarak giriş yapın.');
+      }
+    }
     window.scrollTo(0, 0);
-  }, [loadOffers]);
+  }, [loadOffers, isAuthenticated, isExpert]);
 
   const getOfferStatusBadge = (status) => {
     const statusConfig = {
