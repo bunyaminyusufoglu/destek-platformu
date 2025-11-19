@@ -14,6 +14,7 @@ import offerRoutes from "./routes/offer.js";
 import messageRoutes from "./routes/message.js";
 import adminRoutes from "./routes/admin.js";
 import settingsRoutes from "./routes/settings.js";
+import paymentsRoutes from "./routes/payments.js";
 import connectDB from "./config/db.js";
 
 // Environment variables yükle
@@ -71,6 +72,7 @@ app.use("/api/offers", offerRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/settings", settingsRoutes);
+app.use("/api/payments", paymentsRoutes);
 
 
 // Socket.io authentication middleware

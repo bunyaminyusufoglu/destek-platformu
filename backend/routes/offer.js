@@ -62,7 +62,7 @@ router.post("/create", authMiddleware, validate(createOfferSchema), async (req, 
   }
 });
 
-// Bir talebe gelen teklifleri listele (talep sahibi)
+  // Bir talebe gelen teklifleri listele (talep sahibi)
 router.get("/request/:requestId", authMiddleware, validateObjectId("requestId"), async (req, res) => {
   try {
     const supportRequest = await SupportRequest.findById(req.params.requestId);
@@ -76,11 +76,12 @@ router.get("/request/:requestId", authMiddleware, validateObjectId("requestId"),
       return res.status(403).json({ message: "Bu talebe ait teklifleri göremezsiniz" });
     }
 
-    // Sadece admin onaylı teklifleri göster
-    const offers = await Offer.find({ 
-      supportRequest: req.params.requestId,
-      adminApprovalStatus: "approved"
-    })
+      // Sadece kullanıcı aksiyonu bekleyen teklifleri göster (admin onaylı ve henüz yanıtlanmamış)
+      const offers = await Offer.find({
+        supportRequest: req.params.requestId,
+        adminApprovalStatus: "approved",
+        status: "admin_approved"
+      })
       .populate("expert", "name email skills")
       .populate("supportRequest", "title")
       .sort({ createdAt: -1 });

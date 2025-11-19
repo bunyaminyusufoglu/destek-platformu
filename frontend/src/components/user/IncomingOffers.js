@@ -48,6 +48,26 @@ const IncomingOffers = () => {
     window.scrollTo(0, 0);
   }, [loadOffers]);
 
+  // Sayfa odağa geldiğinde listeyi yenile
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') {
+        loadOffers();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [loadOffers]);
+
+  // Bekleyen (admin_approved) teklifler varken periyodik yenile
+  useEffect(() => {
+    const hasPending = offers.some(o => o.status === 'admin_approved');
+    if (!hasPending) return;
+    const id = setInterval(() => {
+      loadOffers();
+    }, 5000);
+    return () => clearInterval(id);
+  }, [offers, loadOffers]);
   const handleAcceptOffer = (offerId) => {
     const isValidObjectId = typeof offerId === 'string' && /^[a-fA-F0-9]{24}$/.test(offerId);
     if (!isValidObjectId) {
@@ -62,6 +82,11 @@ const IncomingOffers = () => {
       setActionLoading(true);
       setError(''); // Clear any previous errors
       setSuccess(''); // Clear any previous success messages
+      const offer = offers.find(o => o._id === offerId);
+      if (offer && offer.status !== 'admin_approved') {
+        setError('Bu teklif zaten yanıtlanmış.');
+        return;
+      }
       await offerAPI.rejectOffer(offerId);
       setSuccess('Teklif başarıyla reddedildi.');
       setShowModal(false);
@@ -127,7 +152,10 @@ const IncomingOffers = () => {
       <Container fluid className="py-4">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h2>Gelen Teklifler</h2>
-          <Badge bg="info" className="fs-6">{offers.length} teklif</Badge>
+          <div className="d-flex align-items-center gap-2">
+            <Badge bg="info" className="fs-6">{offers.length} teklif</Badge>
+            <Button variant="outline-secondary" size="sm" onClick={loadOffers}>Yenile</Button>
+          </div>
         </div>
 
         {error && (

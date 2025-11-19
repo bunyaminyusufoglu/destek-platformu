@@ -27,6 +27,7 @@ import AdminAuthProvider from './components/admin/AdminAuthProvider';
 import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
 import OfferApproval from './components/admin/OfferApproval';
 import SupportRequestApproval from './components/admin/SupportRequestApproval';
+import PaymentApprovals from './components/admin/PaymentApprovals';
 import { settingsAPI } from './services/api';
 
 const PublicRoute = ({ children }) => {
@@ -258,6 +259,16 @@ function App() {
                 <AdminProtectedRoute>
                   <AdminLayout>
                     <OfferApproval />
+                  </AdminLayout>
+                </AdminProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/payment-approvals" 
+              element={
+                <AdminProtectedRoute>
+                  <AdminLayout>
+                    <PaymentApprovals />
                   </AdminLayout>
                 </AdminProtectedRoute>
               } 

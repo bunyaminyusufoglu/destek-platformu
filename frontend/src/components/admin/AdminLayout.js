@@ -24,6 +24,7 @@ const AdminLayout = ({ children }) => {
     { id: 'requests', label: 'Destek Talepleri', icon: FaTicketAlt, path: '/admin/requests' },
     { id: 'request-approvals', label: 'Talep Onayları', icon: FaFileAlt, path: '/admin/request-approvals' },
     { id: 'offers', label: 'Teklif Onayları', icon: FaHandshake, path: '/admin/offers' },
+    { id: 'payment-approvals', label: 'Ödeme Onayları', icon: FaChartBar, path: '/admin/payment-approvals' },
     { id: 'reports', label: 'Raporlar', icon: FaChartBar, path: '/admin/reports' },
     { id: 'settings', label: 'Ayarlar', icon: FaCog, path: '/admin/settings' }
   ];

@@ -15,7 +15,8 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     // Admin endpoint'leri için admin token kullan
-    if (config.url.startsWith('/admin')) {
+    const isAdminApi = config.url.startsWith('/admin') || config.url.startsWith('/payments/admin');
+    if (isAdminApi) {
       const adminToken = localStorage.getItem('adminToken');
       if (adminToken) {
         config.headers.Authorization = `Bearer ${adminToken}`;
@@ -49,7 +50,7 @@ api.interceptors.response.use(
 
     // Genel 401 yönetimi
     if (status === 401) {
-      const isAdminEndpoint = requestUrl.startsWith('/admin');
+      const isAdminEndpoint = requestUrl.startsWith('/admin') || requestUrl.startsWith('/payments/admin');
 
       if (isAdminEndpoint) {
         // Admin endpointlerinde otomatik yönlendirme veya token temizleme yapma.
@@ -190,6 +191,35 @@ export const offerAPI = {
     const response = await api.get(`/offers/${offerId}`);
     return response.data;
   },
+};
+
+// Payments API functions
+export const paymentsAPI = {
+  // Kullanıcı: Ödeme talebi oluştur
+  createPaymentRequest: async (offerId) => {
+    const response = await api.post('/payments/request', { offerId });
+    return response.data;
+  },
+  // Admin: Bekleyen ödeme talepleri
+  getPending: async () => {
+    const response = await api.get('/payments/admin/pending');
+    return response.data;
+  },
+  // Admin: Onayla
+  approve: async (paymentRequestId) => {
+    const response = await api.put(`/payments/admin/${paymentRequestId}/approve`);
+    return response.data;
+  },
+  // Admin: Reddet
+  reject: async (paymentRequestId) => {
+    const response = await api.put(`/payments/admin/${paymentRequestId}/reject`);
+    return response.data;
+  },
+  // Admin: Sil
+  remove: async (paymentRequestId) => {
+    const response = await api.delete(`/payments/admin/${paymentRequestId}`);
+    return response.data;
+  }
 };
 
 // Message API functions
