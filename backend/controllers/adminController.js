@@ -493,7 +493,7 @@ export const approveOffer = async (req, res) => {
   try {
     const { offerId } = req.params;
     
-    const offer = await Offer.findById(offerId);
+    const offer = await Offer.findById(offerId).populate("expert");
     if (!offer) {
       return res.status(404).json({ message: "Teklif bulunamadı" });
     }
@@ -508,6 +508,16 @@ export const approveOffer = async (req, res) => {
     offer.adminApprovedBy = req.user.id;
     await offer.save();
 
+    // Socket.io bildirimi gönder
+    const io = req.app.get('io');
+    if (io && offer.expert) {
+      io.to(`user_${offer.expert._id}`).emit('notification', {
+        type: 'offer_approved',
+        offerId: offer._id,
+        message: 'Teklifiniz admin tarafından onaylandı'
+      });
+    }
+
     res.json({ message: "Teklif onaylandı", offer });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -519,7 +529,7 @@ export const rejectOffer = async (req, res) => {
   try {
     const { offerId } = req.params;
     
-    const offer = await Offer.findById(offerId);
+    const offer = await Offer.findById(offerId).populate("expert");
     if (!offer) {
       return res.status(404).json({ message: "Teklif bulunamadı" });
     }
@@ -533,6 +543,16 @@ export const rejectOffer = async (req, res) => {
     offer.adminRejectedAt = new Date();
     offer.adminApprovedBy = req.user.id;
     await offer.save();
+
+    // Socket.io bildirimi gönder
+    const io = req.app.get('io');
+    if (io && offer.expert) {
+      io.to(`user_${offer.expert._id}`).emit('notification', {
+        type: 'offer_rejected',
+        offerId: offer._id,
+        message: 'Teklifiniz admin tarafından reddedildi'
+      });
+    }
 
     res.json({ message: "Teklif reddedildi", offer });
   } catch (error) {
@@ -575,7 +595,7 @@ export const approveSupportRequest = async (req, res) => {
   try {
     const { requestId } = req.params;
     
-    const request = await SupportRequest.findById(requestId);
+    const request = await SupportRequest.findById(requestId).populate("user");
     if (!request) {
       return res.status(404).json({ message: "Destek talebi bulunamadı" });
     }
@@ -590,6 +610,16 @@ export const approveSupportRequest = async (req, res) => {
     request.adminApprovedBy = req.user.id;
     await request.save();
 
+    // Socket.io bildirimi gönder
+    const io = req.app.get('io');
+    if (io && request.user) {
+      io.to(`user_${request.user._id}`).emit('notification', {
+        type: 'request_approved',
+        requestId: request._id,
+        message: 'Destek talebiniz onaylandı'
+      });
+    }
+
     res.json({ message: "Destek talebi onaylandı", request });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -601,7 +631,7 @@ export const rejectSupportRequest = async (req, res) => {
   try {
     const { requestId } = req.params;
     
-    const request = await SupportRequest.findById(requestId);
+    const request = await SupportRequest.findById(requestId).populate("user");
     if (!request) {
       return res.status(404).json({ message: "Destek talebi bulunamadı" });
     }
@@ -615,6 +645,16 @@ export const rejectSupportRequest = async (req, res) => {
     request.adminRejectedAt = new Date();
     request.adminApprovedBy = req.user.id;
     await request.save();
+
+    // Socket.io bildirimi gönder
+    const io = req.app.get('io');
+    if (io && request.user) {
+      io.to(`user_${request.user._id}`).emit('notification', {
+        type: 'request_rejected',
+        requestId: request._id,
+        message: 'Destek talebiniz reddedildi'
+      });
+    }
 
     res.json({ message: "Destek talebi reddedildi", request });
   } catch (error) {

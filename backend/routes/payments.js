@@ -126,6 +126,23 @@ router.put("/admin/:id/approve", adminMiddleware, validateObjectId("id"), async 
     pr.adminApprovedBy = req.user._id;
     await pr.save();
 
+    // Socket.io bildirimi gönder - kullanıcı ve uzmana
+    const io = req.app.get('io');
+    if (io) {
+      // Kullanıcıya bildirim
+      io.to(`user_${offer.supportRequest.user}`).emit('notification', {
+        type: 'payment_approved',
+        paymentRequestId: pr._id,
+        message: 'Ödemeniz onaylandı, proje başlatıldı'
+      });
+      // Uzmana bildirim
+      io.to(`user_${offer.expert._id}`).emit('notification', {
+        type: 'payment_approved',
+        paymentRequestId: pr._id,
+        message: 'Ödeme onaylandı, projeye başlayabilirsiniz'
+      });
+    }
+
     res.json({ message: "Ödeme onaylandı, teklif kabul edildi ve sohbet başlatıldı", paymentRequest: pr });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -135,7 +152,10 @@ router.put("/admin/:id/approve", adminMiddleware, validateObjectId("id"), async 
 // Admin: Reject payment request
 router.put("/admin/:id/reject", adminMiddleware, validateObjectId("id"), async (req, res) => {
   try {
-    const pr = await PaymentRequest.findById(req.params.id);
+    const pr = await PaymentRequest.findById(req.params.id).populate({
+      path: "offer",
+      populate: [{ path: "supportRequest" }, { path: "expert" }]
+    });
     if (!pr) {
       return res.status(404).json({ message: "Ödeme talebi bulunamadı" });
     }
@@ -146,6 +166,17 @@ router.put("/admin/:id/reject", adminMiddleware, validateObjectId("id"), async (
     pr.adminApprovedAt = new Date();
     pr.adminApprovedBy = req.user._id;
     await pr.save();
+
+    // Socket.io bildirimi gönder
+    const io = req.app.get('io');
+    if (io && pr.offer && pr.offer.supportRequest) {
+      io.to(`user_${pr.offer.supportRequest.user}`).emit('notification', {
+        type: 'payment_rejected',
+        paymentRequestId: pr._id,
+        message: 'Ödeme talebiniz reddedildi'
+      });
+    }
+
     res.json({ message: "Ödeme talebi reddedildi", paymentRequest: pr });
   } catch (err) {
     res.status(500).json({ error: err.message });

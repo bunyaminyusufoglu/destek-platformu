@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 import Header from './components/shared/Header';
 import HomePage from './components/HomePage';
 import Login from './components/auth/Login';
@@ -82,8 +83,9 @@ function App() {
 
   return (
     <AuthProvider>
-      <AdminAuthProvider>
-        <Router>
+      <NotificationProvider>
+        <AdminAuthProvider>
+          <Router>
           <div className="App">
             <Header />
             <Routes>
@@ -290,6 +292,7 @@ function App() {
           </div>
         </Router>
       </AdminAuthProvider>
+      </NotificationProvider>
     </AuthProvider>
   );
 }

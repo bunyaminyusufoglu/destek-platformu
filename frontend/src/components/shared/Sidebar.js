@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Nav, Badge, Offcanvas, Button } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import NotificationBell from './NotificationBell';
 import { 
   FaHome, 
   FaFileAlt, 
@@ -100,6 +101,9 @@ const Sidebar = () => {
               </div>
             </div>
           </div>
+          <div className="notification-section" style={{ marginTop: '10px' }}>
+            <NotificationBell />
+          </div>
         </div>
 
         <div className="sidebar-content">
@@ -156,13 +160,16 @@ const Sidebar = () => {
             </div>
           </div>
           
-          <Button 
-            variant="outline-light" 
-            className="mobile-menu-toggle"
-            onClick={() => setShowMobileMenu(true)}
-          >
-            ☰
-          </Button>
+          <div className="d-flex align-items-center gap-2">
+            <NotificationBell />
+            <Button 
+              variant="outline-light" 
+              className="mobile-menu-toggle"
+              onClick={() => setShowMobileMenu(true)}
+            >
+              ☰
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -189,6 +196,9 @@ const Sidebar = () => {
                   {getRoleBadge()}
                 </div>
               </div>
+            </div>
+            <div className="notification-section mt-2">
+              <NotificationBell />
             </div>
           </Offcanvas.Title>
         </Offcanvas.Header>
