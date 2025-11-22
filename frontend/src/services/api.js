@@ -299,6 +299,11 @@ export const adminAPI = {
     return response.data;
   },
 
+  getSupportRequestById: async (id) => {
+    const response = await api.get(`/admin/support-requests/${id}`);
+    return response.data;
+  },
+
   updateSupportRequest: async (id, requestData) => {
     const response = await api.put(`/admin/support-requests/${id}`, requestData);
     return response.data;
@@ -324,15 +329,44 @@ export const adminAPI = {
     return response.data;
   },
 
-  // Offer approval
+  // Teklif yönetimi
+  getAllOffers: async (page = 1, limit = 10, status = null, adminApprovalStatus = null) => {
+    let url = `/admin/offers?page=${page}&limit=${limit}`;
+    if (status) {
+      url += `&status=${status}`;
+    }
+    if (adminApprovalStatus) {
+      url += `&adminApprovalStatus=${adminApprovalStatus}`;
+    }
+    const response = await api.get(url);
+    return response.data;
+  },
+
   getPendingOffers: async (page = 1, limit = 10) => {
     const response = await api.get(`/admin/offers/pending?page=${page}&limit=${limit}`);
     return response.data;
   },
+
+  getOfferById: async (id) => {
+    const response = await api.get(`/admin/offers/${id}`);
+    return response.data;
+  },
+
+  updateOffer: async (id, offerData) => {
+    const response = await api.put(`/admin/offers/${id}`, offerData);
+    return response.data;
+  },
+
+  deleteOffer: async (id) => {
+    const response = await api.delete(`/admin/offers/${id}`);
+    return response.data;
+  },
+
   approveOffer: async (offerId) => {
     const response = await api.put(`/admin/offers/${offerId}/approve`);
     return response.data;
   },
+
   rejectOffer: async (offerId) => {
     const response = await api.put(`/admin/offers/${offerId}/reject`);
     return response.data;
@@ -349,6 +383,27 @@ export const adminAPI = {
   },
   rejectSupportRequest: async (requestId) => {
     const response = await api.put(`/admin/support-requests/${requestId}/reject`);
+    return response.data;
+  },
+
+  // Mesaj yönetimi
+  getAllMessages: async (page = 1, limit = 10, conversationId = null, senderId = null, receiverId = null, messageType = null) => {
+    let url = `/admin/messages?page=${page}&limit=${limit}`;
+    if (conversationId) url += `&conversationId=${conversationId}`;
+    if (senderId) url += `&senderId=${senderId}`;
+    if (receiverId) url += `&receiverId=${receiverId}`;
+    if (messageType) url += `&messageType=${messageType}`;
+    const response = await api.get(url);
+    return response.data;
+  },
+
+  getMessageById: async (id) => {
+    const response = await api.get(`/admin/messages/${id}`);
+    return response.data;
+  },
+
+  deleteMessage: async (id) => {
+    const response = await api.delete(`/admin/messages/${id}`);
     return response.data;
   },
 };

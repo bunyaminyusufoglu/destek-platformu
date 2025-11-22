@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Card, Button, Table, Badge, Row, Col, Alert, Spinner, Modal } from 'react-bootstrap';
 import { FaCheck, FaTimes, FaEye, FaClock } from 'react-icons/fa';
 import { adminAPI } from '../../services/api';
@@ -13,11 +13,7 @@ const OfferApproval = () => {
   const [showModal, setShowModal] = useState(false);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, pages: 0 });
 
-  useEffect(() => {
-    loadPendingOffers();
-  }, [pagination.page]);
-
-  const loadPendingOffers = async () => {
+  const loadPendingOffers = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -29,7 +25,11 @@ const OfferApproval = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, pagination.limit]);
+
+  useEffect(() => {
+    loadPendingOffers();
+  }, [loadPendingOffers]);
 
   const handleApprove = async (offerId) => {
     try {

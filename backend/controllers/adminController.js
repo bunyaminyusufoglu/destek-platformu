@@ -269,6 +269,38 @@ export const updateSupportRequest = async (req, res) => {
   }
 };
 
+// Destek talebi detaylarını getir
+export const getSupportRequestById = async (req, res) => {
+  try {
+    const request = await SupportRequest.findById(req.params.id)
+      .populate('user', 'name email')
+      .populate('expert', 'name email skills');
+    
+    if (!request) {
+      return res.status(404).json({ message: "Support request not found" });
+    }
+
+    // İlişkili teklifleri ve mesajları da getir
+    const [offers, messages] = await Promise.all([
+      Offer.find({ supportRequest: req.params.id })
+        .populate('expert', 'name email skills'),
+      Message.find({ conversation: req.params.id })
+        .populate('sender', 'name email')
+        .populate('receiver', 'name email')
+        .sort({ createdAt: -1 })
+        .limit(50)
+    ]);
+
+    res.json({
+      request,
+      offers,
+      messages: messages.reverse() // En eski mesajlar önce
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Destek talebini sil
 export const deleteSupportRequest = async (req, res) => {
   try {
@@ -657,6 +689,227 @@ export const rejectSupportRequest = async (req, res) => {
     }
 
     res.json({ message: "Destek talebi reddedildi", request });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Tüm teklifleri getir
+export const getAllOffers = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const { status, adminApprovalStatus } = req.query;
+
+    const filter = {};
+    if (status) filter.status = status;
+    if (adminApprovalStatus) filter.adminApprovalStatus = adminApprovalStatus;
+    
+    // Teklifleri ve toplam sayıyı paralel olarak getir
+    const [offers, total] = await Promise.all([
+      Offer.find(filter)
+        .populate('expert', 'name email skills')
+        .populate('supportRequest', 'title budget deadline status user')
+        .populate('supportRequest.user', 'name email')
+        .populate('adminApprovedBy', 'name email')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Offer.countDocuments(filter)
+    ]);
+
+    res.json({
+      offers,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Teklif detaylarını getir
+export const getOfferById = async (req, res) => {
+  try {
+    const offer = await Offer.findById(req.params.id)
+      .populate('expert', 'name email skills')
+      .populate('supportRequest', 'title description budget deadline status user')
+      .populate('supportRequest.user', 'name email')
+      .populate('adminApprovedBy', 'name email');
+    
+    if (!offer) {
+      return res.status(404).json({ message: "Offer not found" });
+    }
+
+    // İlişkili mesajları da getir (varsa)
+    const messages = await Message.find({ 
+      conversation: offer.supportRequest._id,
+      relatedOffer: offer._id
+    })
+      .populate('sender', 'name email')
+      .populate('receiver', 'name email')
+      .sort({ createdAt: -1 });
+
+    res.json({
+      offer,
+      relatedMessages: messages
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Teklifi güncelle
+export const updateOffer = async (req, res) => {
+  try {
+    const { message, proposedPrice, estimatedDuration, status, adminApprovalStatus } = req.body;
+    
+    const offer = await Offer.findById(req.params.id);
+    if (!offer) {
+      return res.status(404).json({ message: "Offer not found" });
+    }
+
+    const updateData = {};
+    if (message !== undefined) updateData.message = message;
+    if (proposedPrice !== undefined) updateData.proposedPrice = proposedPrice;
+    if (estimatedDuration !== undefined) updateData.estimatedDuration = estimatedDuration;
+    if (status !== undefined) updateData.status = status;
+    if (adminApprovalStatus !== undefined) {
+      updateData.adminApprovalStatus = adminApprovalStatus;
+      if (adminApprovalStatus === 'approved') {
+        updateData.adminApprovedAt = new Date();
+        updateData.adminApprovedBy = req.user.id;
+        if (!status || status === 'pending') {
+          updateData.status = 'admin_approved';
+        }
+      } else if (adminApprovalStatus === 'rejected') {
+        updateData.adminRejectedAt = new Date();
+        updateData.adminApprovedBy = req.user.id;
+        if (!status || status === 'pending') {
+          updateData.status = 'admin_rejected';
+        }
+      }
+    }
+
+    const updatedOffer = await Offer.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true }
+    )
+      .populate('expert', 'name email skills')
+      .populate('supportRequest', 'title budget deadline')
+      .populate('adminApprovedBy', 'name email');
+
+    // Socket.io bildirimi gönder
+    const io = req.app.get('io');
+    if (io && updatedOffer.expert) {
+      io.to(`user_${updatedOffer.expert._id}`).emit('notification', {
+        type: 'offer_updated',
+        offerId: updatedOffer._id,
+        message: 'Teklifiniz güncellendi'
+      });
+    }
+
+    res.json({ message: "Offer updated successfully", offer: updatedOffer });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Teklifi sil
+export const deleteOffer = async (req, res) => {
+  try {
+    const offer = await Offer.findById(req.params.id);
+    if (!offer) {
+      return res.status(404).json({ message: "Offer not found" });
+    }
+
+    // İlişkili mesajları da sil (varsa)
+    await Message.deleteMany({ relatedOffer: req.params.id });
+    await Offer.findByIdAndDelete(req.params.id);
+
+    res.json({ message: "Offer deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Tüm mesajları getir
+export const getAllMessages = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const { conversationId, senderId, receiverId, messageType } = req.query;
+
+    const filter = {};
+    if (conversationId) filter.conversation = conversationId;
+    if (senderId) filter.sender = senderId;
+    if (receiverId) filter.receiver = receiverId;
+    if (messageType) filter.messageType = messageType;
+    
+    // Mesajları ve toplam sayıyı paralel olarak getir
+    const [messages, total] = await Promise.all([
+      Message.find(filter)
+        .populate('sender', 'name email')
+        .populate('receiver', 'name email')
+        .populate('conversation', 'title')
+        .populate('relatedOffer', 'proposedPrice status')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Message.countDocuments(filter)
+    ]);
+
+    res.json({
+      messages,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Mesaj detaylarını getir
+export const getMessageById = async (req, res) => {
+  try {
+    const message = await Message.findById(req.params.id)
+      .populate('sender', 'name email')
+      .populate('receiver', 'name email')
+      .populate('conversation', 'title description budget deadline')
+      .populate('relatedOffer', 'proposedPrice estimatedDuration status');
+    
+    if (!message) {
+      return res.status(404).json({ message: "Message not found" });
+    }
+
+    res.json({ message });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Mesajı sil
+export const deleteMessage = async (req, res) => {
+  try {
+    const message = await Message.findById(req.params.id);
+    if (!message) {
+      return res.status(404).json({ message: "Message not found" });
+    }
+
+    await Message.findByIdAndDelete(req.params.id);
+
+    res.json({ message: "Message deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

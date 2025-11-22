@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const AdminAuthContext = createContext();
 
@@ -15,11 +15,7 @@ export const AdminAuthProvider = ({ children }) => {
   const [adminUser, setAdminUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    checkAdminAuth();
-  }, []);
-
-  const checkAdminAuth = () => {
+  const checkAdminAuth = useCallback(() => {
     try {
       const adminToken = localStorage.getItem('adminToken');
       const storedAdminUser = localStorage.getItem('adminUser');
@@ -51,7 +47,11 @@ export const AdminAuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    checkAdminAuth();
+  }, [checkAdminAuth]);
 
   const login = (userData) => {
     setAdminUser(userData);

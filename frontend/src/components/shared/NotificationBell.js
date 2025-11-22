@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Badge, Dropdown, Button } from 'react-bootstrap';
+import { Badge, Button } from 'react-bootstrap';
 import { FaBell } from 'react-icons/fa';
 import { useNotifications } from '../../contexts/NotificationContext';
 import NotificationDropdown from './NotificationDropdown';

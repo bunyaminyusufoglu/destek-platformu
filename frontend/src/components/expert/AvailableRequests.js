@@ -9,8 +9,7 @@ import {
   FaSearch, 
   FaFilter, 
   FaTimes,
-  FaTag,
-  FaSortAmountDown
+  FaTag
 } from 'react-icons/fa';
 
 const AvailableRequests = () => {

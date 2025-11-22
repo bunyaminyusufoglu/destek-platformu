@@ -8,17 +8,25 @@ import {
   deleteUser,
   resetUserPassword,
   getAllSupportRequests,
+  getSupportRequestById,
   updateSupportRequest,
   deleteSupportRequest,
   getReports,
   getSettings,
   updateSettings,
   getPendingOffers,
+  getAllOffers,
+  getOfferById,
+  updateOffer,
+  deleteOffer,
   approveOffer,
   rejectOffer,
   getPendingSupportRequests,
   approveSupportRequest,
-  rejectSupportRequest
+  rejectSupportRequest,
+  getAllMessages,
+  getMessageById,
+  deleteMessage
 } from "../controllers/adminController.js";
 
 const router = express.Router();
@@ -38,6 +46,7 @@ router.put("/users/:id/reset-password", resetUserPassword);
 
 // Destek talepleri yönetimi
 router.get("/support-requests", getAllSupportRequests);
+router.get("/support-requests/:id", getSupportRequestById);
 router.put("/support-requests/:id", updateSupportRequest);
 router.delete("/support-requests/:id", deleteSupportRequest);
 
@@ -48,8 +57,12 @@ router.get("/reports", getReports);
 router.get("/settings", getSettings);
 router.put("/settings", updateSettings);
 
-// Teklif onaylama
+// Teklif yönetimi
+router.get("/offers", getAllOffers);
 router.get("/offers/pending", getPendingOffers);
+router.get("/offers/:id", getOfferById);
+router.put("/offers/:id", updateOffer);
+router.delete("/offers/:id", deleteOffer);
 router.put("/offers/:offerId/approve", approveOffer);
 router.put("/offers/:offerId/reject", rejectOffer);
 
@@ -57,5 +70,10 @@ router.put("/offers/:offerId/reject", rejectOffer);
 router.get("/support-requests/pending", getPendingSupportRequests);
 router.put("/support-requests/:requestId/approve", approveSupportRequest);
 router.put("/support-requests/:requestId/reject", rejectSupportRequest);
+
+// Mesaj yönetimi
+router.get("/messages", getAllMessages);
+router.get("/messages/:id", getMessageById);
+router.delete("/messages/:id", deleteMessage);
 
 export default router;

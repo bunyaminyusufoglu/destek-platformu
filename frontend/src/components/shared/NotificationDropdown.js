@@ -57,16 +57,15 @@ const NotificationDropdown = ({ onClose }) => {
     switch (type) {
       case 'new_message':
         return <FaEnvelope className="text-primary" />;
+      case 'payment_approved':
+        return <FaMoneyBillWave className="text-success" />;
       case 'offer_approved':
       case 'request_approved':
-      case 'payment_approved':
         return <FaCheckCircle className="text-success" />;
       case 'offer_rejected':
       case 'request_rejected':
       case 'payment_rejected':
         return <FaTimesCircle className="text-danger" />;
-      case 'payment_approved':
-        return <FaMoneyBillWave className="text-success" />;
       default:
         return <FaFileAlt className="text-info" />;
     }
