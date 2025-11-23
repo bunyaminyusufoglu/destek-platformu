@@ -15,6 +15,7 @@ import {
   FaDollarSign,
   FaUser
 } from 'react-icons/fa';
+import { getStatusDisplay, supportRequestStatusMap, offerStatusMap } from '../../utils/statusLabels';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -117,30 +118,13 @@ const Dashboard = () => {
   };
 
   const getStatusBadge = (status) => {
-    const statusConfig = {
-      open: { variant: 'success', text: 'Açık' },
-      assigned: { variant: 'primary', text: 'Atanmış' },
-      in_progress: { variant: 'warning', text: 'Devam Ediyor' },
-      completed: { variant: 'secondary', text: 'Tamamlandı' },
-      cancelled: { variant: 'danger', text: 'İptal' }
-    };
-    
-    const config = statusConfig[status] || { variant: 'secondary', text: status };
-    return <Badge bg={config.variant}>{config.text}</Badge>;
+    const { variant, text } = getStatusDisplay(supportRequestStatusMap, status);
+    return <Badge bg={variant}>{text}</Badge>;
   };
 
   const getOfferStatusBadge = (status) => {
-    const statusConfig = {
-      pending: { variant: 'warning', text: 'Admin Onayı Bekliyor' },
-      admin_approved: { variant: 'info', text: 'Admin Onaylandı' },
-      admin_rejected: { variant: 'danger', text: 'Admin Reddetti' },
-      accepted: { variant: 'success', text: 'Kabul Edildi' },
-      rejected: { variant: 'danger', text: 'Reddedildi' },
-      cancelled: { variant: 'secondary', text: 'İptal' }
-    };
-    
-    const config = statusConfig[status] || { variant: 'secondary', text: status };
-    return <Badge bg={config.variant}>{config.text}</Badge>;
+    const { variant, text } = getStatusDisplay(offerStatusMap, status);
+    return <Badge bg={variant}>{text}</Badge>;
   };
 
   if (loading) {

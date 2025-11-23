@@ -14,6 +14,7 @@ import {
   FaTimes,
   FaTag
 } from 'react-icons/fa';
+import { getStatusDisplay, supportRequestStatusMap } from '../../utils/statusLabels';
 
 const MyRequests = () => {
   const [loading, setLoading] = useState(true);
@@ -173,19 +174,19 @@ const MyRequests = () => {
   };
 
   const getStatusBadge = (status) => {
-    const statusConfig = {
-      open: { variant: 'success', text: 'Açık', icon: '🔓' },
-      assigned: { variant: 'primary', text: 'Atanmış', icon: <FaTools /> },
-      in_progress: { variant: 'warning', text: 'Devam Ediyor', icon: <FaTools /> },
-      completed: { variant: 'secondary', text: 'Tamamlandı', icon: '✅' },
-      cancelled: { variant: 'danger', text: 'İptal', icon: '❌' }
+    const { variant, text } = getStatusDisplay(supportRequestStatusMap, status);
+    const iconMap = {
+      open: '🔓',
+      assigned: <FaTools />,
+      in_progress: <FaTools />,
+      completed: '✅',
+      cancelled: '❌',
     };
-    
-    const config = statusConfig[status] || { variant: 'secondary', text: status, icon: '❓' };
+    const icon = iconMap[status] || '❓';
     return (
-      <Badge bg={config.variant} className="d-flex align-items-center gap-1">
-        <span>{config.icon}</span>
-        {config.text}
+      <Badge bg={variant} className="d-flex align-items-center gap-1">
+        <span>{icon}</span>
+        {text}
       </Badge>
     );
   };

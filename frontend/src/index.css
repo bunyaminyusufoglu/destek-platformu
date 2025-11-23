@@ -1470,6 +1470,63 @@ a.hero-btn-secondary:active {
   opacity: 0.8;
 }
 
+/* Content header (desktop) */
+.content-header {
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  background: #ffffff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  border-radius: 0 0 12px 12px;
+}
+
+/* Notification bell */
+.notification-bell-container {
+  position: relative;
+}
+
+.notification-bell-btn {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.notification-bell-btn:hover {
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.notification-bell-btn:active {
+  transform: scale(0.98);
+}
+
+.notification-badge {
+  box-shadow: 0 0 0 2px #ffffff;
+}
+
+/* Notification dropdown */
+.notification-dropdown {
+  border-radius: 12px !important;
+  animation: dropdown-enter 120ms ease-out;
+  overflow: hidden;
+}
+
+@keyframes dropdown-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Animations */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }

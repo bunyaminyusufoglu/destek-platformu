@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Container, Row, Col, Card, Badge, Alert, Spinner } from 'react-bootstrap';
 import { offerAPI } from '../../services/api';
 import { FaDollarSign, FaClock } from 'react-icons/fa';
+import { getStatusDisplay, offerStatusMap } from '../../utils/statusLabels';
 import { useAuth } from '../../contexts/AuthContext';
 
 const MyOffers = () => {
@@ -50,16 +51,8 @@ const MyOffers = () => {
   }, [loadOffers, isAuthenticated, isExpert]);
 
   const getOfferStatusBadge = (status) => {
-    const statusConfig = {
-      pending: { variant: 'warning', text: 'Admin Onayı Bekliyor' },
-      admin_approved: { variant: 'info', text: 'Admin Onaylandı' },
-      admin_rejected: { variant: 'danger', text: 'Admin Reddetti' },
-      accepted: { variant: 'success', text: 'Kabul Edildi' },
-      rejected: { variant: 'danger', text: 'Reddedildi' },
-      cancelled: { variant: 'secondary', text: 'İptal' }
-    };
-    const config = statusConfig[status] || { variant: 'secondary', text: status };
-    return <Badge bg={config.variant}>{config.text}</Badge>;
+    const { variant, text } = getStatusDisplay(offerStatusMap, status);
+    return <Badge bg={variant}>{text}</Badge>;
   };
 
   const formatDate = (dateString) => {

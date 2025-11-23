@@ -15,7 +15,6 @@ import {
   Pagination,
 } from 'react-bootstrap';
 import { 
-  FaEdit, 
   FaTrash, 
   FaEye, 
   FaSearch,
@@ -25,18 +24,19 @@ import {
   FaExclamationTriangle,
   FaUser
 } from 'react-icons/fa';
+import { getStatusDisplay, supportRequestStatusMap, paymentStatusMap } from '../../utils/statusLabels';
 
 const SupportRequestManagement = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState('');
+  const [processingId, setProcessingId] = useState(null);
   const [pagination, setPagination] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRequest, setSelectedRequest] = useState(null);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [editForm, setEditForm] = useState({});
   const [statusFilter, setStatusFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -57,54 +57,72 @@ const SupportRequestManagement = () => {
     fetchRequests();
   }, [fetchRequests]);
 
-  const handleEditRequest = (request) => {
-    setSelectedRequest(request);
-    setEditForm({
-      status: request.status,
-      priority: request.priority || 'medium'
-    });
-    setShowEditModal(true);
-  };
-
-  const handleUpdateRequest = async () => {
-    try {
-      await adminAPI.updateSupportRequest(selectedRequest._id, editForm);
-      setShowEditModal(false);
-      fetchRequests();
-      setError(null);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Destek talebi güncellenirken hata oluştu');
-    }
-  };
-
   const handleDeleteRequest = async () => {
     try {
       await adminAPI.deleteSupportRequest(selectedRequest._id);
       setShowDeleteModal(false);
       fetchRequests();
       setError(null);
+      setSuccess('Destek talebi silindi.');
     } catch (err) {
       setError(err.response?.data?.message || 'Destek talebi silinirken hata oluştu');
     }
   };
 
+  const handleApprove = async (requestId) => {
+    try {
+      setProcessingId(requestId);
+      setError(null);
+      setSuccess('');
+      await adminAPI.approveSupportRequest(requestId);
+      setSuccess('Destek talebi onaylandı.');
+      fetchRequests();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Onay sırasında hata oluştu');
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const handleReject = async (requestId) => {
+    try {
+      setProcessingId(requestId);
+      setError(null);
+      setSuccess('');
+      await adminAPI.rejectSupportRequest(requestId);
+      setSuccess('Destek talebi reddedildi.');
+      fetchRequests();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Reddetme sırasında hata oluştu');
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
   const getStatusBadge = (status) => {
-    const statusConfig = {
-      pending: { bg: 'warning', icon: FaClock, text: 'Bekleyen' },
-      active: { bg: 'info', icon: FaExclamationTriangle, text: 'Aktif' },
-      completed: { bg: 'success', icon: FaCheckCircle, text: 'Tamamlanan' },
-      cancelled: { bg: 'danger', icon: FaTrash, text: 'İptal Edilen' }
+    const { variant, text } = getStatusDisplay(supportRequestStatusMap, status);
+    const iconMap = {
+      pending: <FaClock />,
+      admin_approved: <FaCheckCircle />,
+      admin_rejected: <FaExclamationTriangle />,
+      open: <FaCheckCircle />,
+      assigned: <FaCheckCircle />,
+      in_progress: <FaExclamationTriangle />,
+      completed: <FaCheckCircle />,
+      cancelled: <FaTrash />,
     };
-
-    const config = statusConfig[status] || statusConfig.pending;
-    const IconComponent = config.icon;
-
+    const icon = iconMap[status] || null;
     return (
-      <Badge bg={config.bg}>
-        <IconComponent className="me-1" />
-        {config.text}
+      <Badge bg={variant} className="d-inline-flex align-items-center gap-1">
+        {icon}
+        {text}
       </Badge>
     );
+  };
+
+  const getAdminApprovalBadge = (approvalStatus) => {
+    const { variant, text } = getStatusDisplay(paymentStatusMap, approvalStatus);
+    return <Badge bg={variant}>{text}</Badge>;
   };
 
   const getPriorityBadge = (priority) => {
@@ -122,7 +140,7 @@ const SupportRequestManagement = () => {
   const filteredRequests = requests.filter(request => 
     request.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     request.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    request.userId?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    request.user?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading && requests.length === 0) {
@@ -142,6 +160,11 @@ const SupportRequestManagement = () => {
           <Alert variant="danger" className="mb-4" dismissible onClose={() => setError(null)}>
             <Alert.Heading>Hata!</Alert.Heading>
             {error}
+          </Alert>
+        )}
+        {success && (
+          <Alert variant="success" className="mb-4" dismissible onClose={() => setSuccess('')}>
+            {success}
           </Alert>
         )}
 
@@ -166,10 +189,14 @@ const SupportRequestManagement = () => {
               onChange={(e) => setStatusFilter(e.target.value)}
             >
               <option value="">Tüm Durumlar</option>
-              <option value="pending">Bekleyen</option>
-              <option value="active">Aktif</option>
-              <option value="completed">Tamamlanan</option>
-              <option value="cancelled">İptal Edilen</option>
+              <option value="pending">Onay Bekliyor</option>
+              <option value="admin_approved">Admin Onaylı</option>
+              <option value="admin_rejected">Admin Reddedildi</option>
+              <option value="open">Açık</option>
+              <option value="assigned">Atandı</option>
+              <option value="in_progress">Devam Ediyor</option>
+              <option value="completed">Tamamlandı</option>
+              <option value="cancelled">İptal Edildi</option>
             </Form.Select>
           </Col>
           <Col md={4}>
@@ -202,6 +229,7 @@ const SupportRequestManagement = () => {
           <tr>
             <th>Başlık</th>
             <th>Kullanıcı</th>
+            <th>Admin Onayı</th>
             <th>Durum</th>
             <th>Öncelik</th>
             <th>Oluşturulma</th>
@@ -227,12 +255,13 @@ const SupportRequestManagement = () => {
                 <div className="d-flex align-items-center">
                   <FaUser className="text-secondary me-2" />
                   <div>
-                    <strong>{request.userId?.name}</strong>
+                    <strong>{request.user?.name}</strong>
                     <br />
-                    <small className="text-muted">{request.userId?.email}</small>
+                    <small className="text-muted">{request.user?.email}</small>
                   </div>
                 </div>
               </td>
+              <td>{getAdminApprovalBadge(request.adminApprovalStatus)}</td>
               <td>{getStatusBadge(request.status)}</td>
               <td>{getPriorityBadge(request.priority)}</td>
               <td>{new Date(request.createdAt).toLocaleDateString('tr-TR')}</td>
@@ -249,14 +278,28 @@ const SupportRequestManagement = () => {
                   >
                     <FaEye />
                   </Button>
-                  <Button 
-                    size="sm"
-                    variant="outline-primary" 
-                    onClick={() => handleEditRequest(request)}
-                    title="Düzenle"
-                  >
-                    <FaEdit />
-                  </Button>
+                  {request.adminApprovalStatus === 'pending' && (
+                    <>
+                      <Button 
+                        size="sm"
+                        variant="success"
+                        onClick={() => handleApprove(request._id)}
+                        disabled={processingId === request._id}
+                        title="Onayla"
+                      >
+                        ✔
+                      </Button>
+                      <Button 
+                        size="sm"
+                        variant="danger"
+                        onClick={() => handleReject(request._id)}
+                        disabled={processingId === request._id}
+                        title="Reddet"
+                      >
+                        ✖
+                      </Button>
+                    </>
+                  )}
                   <Button 
                     size="sm"
                     variant="outline-danger" 
@@ -309,47 +352,7 @@ const SupportRequestManagement = () => {
         )}
       </Container>
 
-      {/* Talep Düzenleme Modal */}
-      <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Destek Talebini Düzenle</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Durum</Form.Label>
-              <Form.Select
-                value={editForm.status}
-                onChange={(e) => setEditForm({...editForm, status: e.target.value})}
-              >
-                <option value="pending">Bekleyen</option>
-                <option value="active">Aktif</option>
-                <option value="completed">Tamamlanan</option>
-                <option value="cancelled">İptal Edilen</option>
-              </Form.Select>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Öncelik</Form.Label>
-              <Form.Select
-                value={editForm.priority}
-                onChange={(e) => setEditForm({...editForm, priority: e.target.value})}
-              >
-                <option value="low">Düşük</option>
-                <option value="medium">Orta</option>
-                <option value="high">Yüksek</option>
-              </Form.Select>
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowEditModal(false)}>
-            İptal
-          </Button>
-          <Button variant="primary" onClick={handleUpdateRequest}>
-            Güncelle
-          </Button>
-        </Modal.Footer>
-      </Modal>
+
 
       {/* Talep Detayları Modal */}
       <Modal show={showDetailModal} onHide={() => setShowDetailModal(false)} size="lg">
@@ -374,7 +377,7 @@ const SupportRequestManagement = () => {
                       <p>{getPriorityBadge(selectedRequest.priority)}</p>
                       
                       <h6>Kullanıcı</h6>
-                      <p>{selectedRequest.userId?.name}</p>
+                      <p>{selectedRequest.user?.name}</p>
                       
                       <h6>Oluşturulma</h6>
                       <p>{new Date(selectedRequest.createdAt).toLocaleString('tr-TR')}</p>
@@ -405,7 +408,7 @@ const SupportRequestManagement = () => {
           {selectedRequest && (
             <div>
               <p><strong>Başlık:</strong> {selectedRequest.title}</p>
-              <p><strong>Kullanıcı:</strong> {selectedRequest.userId?.name}</p>
+              <p><strong>Kullanıcı:</strong> {selectedRequest.user?.name}</p>
             </div>
           )}
         </Modal.Body>

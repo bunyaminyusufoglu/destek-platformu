@@ -101,9 +101,6 @@ const Sidebar = () => {
               </div>
             </div>
           </div>
-          <div className="notification-section" style={{ marginTop: '10px' }}>
-            <NotificationBell />
-          </div>
         </div>
 
         <div className="sidebar-content">
