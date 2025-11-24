@@ -115,6 +115,26 @@ router.get("/my-offers", authMiddleware, async (req, res) => {
   }
 });
 
+// Uzmanın tüm tekliflerini listele (onay durumuna bakılmaksızın)
+router.get("/my-all-offers", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user || !user.isExpert) {
+      return res.status(403).json({ message: "Yalnızca uzmanlar bu endpoint'i kullanabilir" });
+    }
+
+    // Tüm teklifleri getir (onay durumu fark etmez)
+    const offers = await Offer.find({ expert: req.user.id })
+      .populate("supportRequest", "title budget deadline status")
+      .populate("expert", "name email")
+      .sort({ createdAt: -1 });
+
+    res.json(offers);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Tek teklif detayını getir
 router.get("/:offerId", authMiddleware, validateObjectId("offerId"), async (req, res) => {
   try {
@@ -137,27 +157,6 @@ router.get("/:offerId", authMiddleware, validateObjectId("offerId"), async (req,
 
     res.json(offer);
   } catch (err) {
-    console.error('Teklif detayı hatası:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Uzmanın tüm tekliflerini listele (onay durumuna bakılmaksızın)
-router.get("/my-all-offers", authMiddleware, async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id);
-    if (!user || !user.isExpert) {
-      return res.status(403).json({ message: "Yalnızca uzmanlar bu endpoint'i kullanabilir" });
-    }
-
-    // Tüm teklifleri getir (onay durumu fark etmez)
-    const offers = await Offer.find({ expert: req.user.id })
-      .populate("supportRequest", "title budget deadline status")
-      .populate("expert", "name email")
-      .sort({ createdAt: -1 });
-
-    res.json(offers);
-  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
@@ -171,15 +170,6 @@ router.put("/:offerId/accept", authMiddleware, validateObjectId("offerId"), asyn
     if (!offer) {
       return res.status(404).json({ message: "Teklif bulunamadı" });
     }
-
-    // Debug logging
-    console.log('Offer accept attempt:', {
-      offerId: req.params.offerId,
-      userId: req.user.id,
-      offerStatus: offer.status,
-      adminApprovalStatus: offer.adminApprovalStatus,
-      supportRequestUser: offer.supportRequest.user.toString()
-    });
 
     // Sadece talep sahibi kabul edebilir
     if (offer.supportRequest.user.toString() !== req.user.id) {

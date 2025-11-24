@@ -35,16 +35,13 @@ const Login = () => {
     clearError();
 
     try {
-      console.log('Login attempt:', { email: formData.email });
-      const response = await login(formData);
-      console.log('Login successful:', response);
+      await login(formData);
       
       // Başarılı giriş sonrası kısa bir bekleme ve yönlendirme
       setTimeout(() => {
         navigate('/dashboard', { replace: true });
       }, 100);
     } catch (err) {
-      console.error('Login error:', err);
       const errorMessage = err.message || 'Giriş yapılırken bir hata oluştu';
       setError(errorMessage);
     } finally {

@@ -81,12 +81,9 @@ export const authAPI = {
   // Giriş yap
   login: async (credentials) => {
     try {
-      console.log('API: Login request to /auth/login', { email: credentials.email });
       const response = await api.post('/auth/login', credentials);
-      console.log('API: Login response', response.data);
       return response.data;
     } catch (error) {
-      console.error('API: Login error', error.response?.data || error.message);
       throw error;
     }
   },

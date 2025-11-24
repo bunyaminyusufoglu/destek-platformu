@@ -71,9 +71,9 @@ const Dashboard = () => {
         }));
       }
 
-      // Eğer uzman veya admin ise tekliflerini getir
+      // Eğer uzman veya admin ise tekliflerini getir (tüm durumlar)
       if (user.isExpert || user.isAdmin) {
-        const offers = await offerAPI.getMyOffers();
+        const offers = await offerAPI.getMyAllOffers();
         setRecentOffers(offers.slice(0, 5));
         setStats(prev => ({
           ...prev,

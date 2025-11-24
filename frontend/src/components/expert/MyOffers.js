@@ -3,10 +3,8 @@ import { Container, Row, Col, Card, Badge, Alert, Spinner } from 'react-bootstra
 import { offerAPI } from '../../services/api';
 import { FaDollarSign, FaClock } from 'react-icons/fa';
 import { getStatusDisplay, offerStatusMap } from '../../utils/statusLabels';
-import { useAuth } from '../../contexts/AuthContext';
 
 const MyOffers = () => {
-  const { isAuthenticated, isExpert } = useAuth();
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -39,16 +37,10 @@ const MyOffers = () => {
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated && isExpert) {
-      loadOffers();
-    } else {
-      setLoading(false);
-      if (!isExpert) {
-        setError('Teklifleri görmek için uzman olarak giriş yapın.');
-      }
-    }
+    // Her durumda dene; yetki yoksa anlamlı uyarı gösterilir
+    loadOffers();
     window.scrollTo(0, 0);
-  }, [loadOffers, isAuthenticated, isExpert]);
+  }, [loadOffers]);
 
   const getOfferStatusBadge = (status) => {
     const { variant, text } = getStatusDisplay(offerStatusMap, status);

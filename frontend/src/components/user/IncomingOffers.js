@@ -29,14 +29,11 @@ const IncomingOffers = () => {
         try {
           const requestOffers = await offerAPI.getRequestOffers(requestId);
           allOffers.push(...requestOffers);
-        } catch (err) {
-          console.error(`Teklifler yüklenemedi (${requestId}):`, err);
-        }
+        } catch (err) {}
       }
       
       setOffers(allOffers);
     } catch (err) {
-      console.error('Teklifler yükleme hatası:', err);
       const errorMessage = err.response?.data?.message || err.message || 'Teklifler yüklenirken hata oluştu';
       setError(errorMessage);
     } finally {
@@ -94,7 +91,6 @@ const IncomingOffers = () => {
       setSelectedOffer(null);
       await loadOffers(); // Listeyi yenile
     } catch (err) {
-      console.error('Teklif reddetme hatası:', err);
       let errorMessage = err.response?.data?.message || err.message || 'Teklif reddedilirken hata oluştu';
       if (typeof errorMessage === 'string' && /invalid\s+offerid/i.test(errorMessage)) {
         errorMessage = 'Geçersiz teklif kimliği. Lütfen sayfayı yenileyin.';

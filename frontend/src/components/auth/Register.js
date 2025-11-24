@@ -70,11 +70,9 @@ const Register = () => {
       registerData.isExpert = role === 'expert';
       // isAdmin alanını gönderme (backend'de forbidden)
       
-      console.log('Gönderilen data:', registerData);
       await register(registerData);
       window.location.href = '/dashboard';
     } catch (err) {
-      console.error('Register error:', err);
       setError(err.message);
     } finally {
       setLoading(false);

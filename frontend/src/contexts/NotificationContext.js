@@ -45,18 +45,13 @@ export const NotificationProvider = ({ children }) => {
     socketRef.current = socket;
 
     // Bağlantı başarılı
-    socket.on('connect', () => {
-      console.log('🔌 Socket.io bağlandı');
-    });
+    socket.on('connect', () => {});
 
     // Bağlantı hatası
-    socket.on('connect_error', (error) => {
-      console.error('Socket.io bağlantı hatası:', error);
-    });
+    socket.on('connect_error', () => {});
 
     // Bildirim al
     socket.on('notification', (data) => {
-      console.log('📬 Yeni bildirim:', data);
       const notification = {
         id: Date.now() + Math.random(),
         type: data.type || 'info',
@@ -80,16 +75,10 @@ export const NotificationProvider = ({ children }) => {
     });
 
     // Mesaj bildirimi
-    socket.on('new_message', (data) => {
-      // Mesaj bildirimi zaten 'notification' eventi ile geliyor
-      // Burada sadece log tutuyoruz
-      console.log('💬 Yeni mesaj:', data);
-    });
+    socket.on('new_message', () => {});
 
     // Bağlantı koptu
-    socket.on('disconnect', () => {
-      console.log('🔌 Socket.io bağlantısı kesildi');
-    });
+    socket.on('disconnect', () => {});
 
     // Tarayıcı bildirim izni iste
     if ('Notification' in window && Notification.permission === 'default') {

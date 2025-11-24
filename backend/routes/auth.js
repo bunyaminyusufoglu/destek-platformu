@@ -10,7 +10,6 @@ const router = express.Router();
 // Register
 router.post("/register", validate(registerSchema), async (req, res) => {
   try {
-    console.log('Register request body:', req.body);
     const { isUser, isExpert, name, email, password, skills } = req.body;
 
     // Email'i normalize et (küçük harfe çevir ve trim yap)
@@ -64,10 +63,7 @@ router.post("/login", validate(loginSchema), async (req, res) => {
     // Email'i normalize et (küçük harfe çevir)
     const normalizedEmail = email.toLowerCase().trim();
     
-    // Debug log (sadece development için)
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('Login attempt for email:', normalizedEmail);
-    }
+    // Debug log kaldırıldı
 
     // Email ile kullanıcı ara (case-insensitive)
     const user = await User.findOne({ 
@@ -75,28 +71,18 @@ router.post("/login", validate(loginSchema), async (req, res) => {
     });
     
     if (!user) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('User not found for email:', normalizedEmail);
-      }
       return res.status(400).json({ message: "Email veya şifre hatalı" });
     }
 
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('User found:', { id: user._id, name: user.name, email: user.email });
-    }
+    // Debug log kaldırıldı
 
     // Şifre kontrol
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('Password mismatch for user:', user.email);
-      }
       return res.status(400).json({ message: "Email veya şifre hatalı" });
     }
 
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('Login successful for user:', user.email);
-    }
+    // Debug log kaldırıldı
 
     // Token üret
     const token = jwt.sign(

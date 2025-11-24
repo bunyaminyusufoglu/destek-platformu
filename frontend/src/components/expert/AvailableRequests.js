@@ -220,7 +220,6 @@ const AvailableRequests = () => {
     } catch (err) {
       const data = err?.response?.data;
       const serverMessage = data?.error || data?.message || err.message;
-      console.error('Teklif gönderme hatası:', serverMessage);
       alert(serverMessage || 'Teklif gönderilemedi. Lütfen tekrar deneyin.');
     } finally {
       setSendingOffer(false);

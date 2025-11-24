@@ -48,7 +48,6 @@ const PaymentPage = () => {
         setError('Bu teklif için ödeme talebi oluşturmak için önce teklifin admin tarafından onaylanması gerekir.');
       }
     } catch (err) {
-      console.error('Teklif detayları yüklenemedi:', err);
       const errorMessage = err.response?.data?.message || err.message || 'Teklif detayları yüklenirken hata oluştu';
       setError(errorMessage);
     } finally {
@@ -97,7 +96,6 @@ const PaymentPage = () => {
       }, 3000);
 
     } catch (err) {
-      console.error('Ödeme hatası:', err);
       const errorMessage = err.response?.data?.message || err.message || 'Ödeme talebi oluşturulurken hata oluştu';
       setError(errorMessage);
     } finally {

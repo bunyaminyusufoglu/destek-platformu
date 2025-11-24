@@ -57,7 +57,6 @@ export const AuthProvider = ({ children }) => {
           }
         }
       } catch (err) {
-        console.error('Auth check error:', err);
         localStorage.removeItem('token');
         // Admin oturumu varsa user bilgisini silme
         if (!localStorage.getItem('adminToken')) {
@@ -90,7 +89,6 @@ export const AuthProvider = ({ children }) => {
       
       return response;
     } catch (err) {
-      console.log('AuthContext register error:', err.response?.data);
       const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || 'Kayıt sırasında hata oluştu';
       setError(errorMessage);
       throw new Error(errorMessage);
@@ -105,24 +103,18 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       setLoading(true);
       
-      console.log('AuthContext: Login attempt');
       const response = await authAPI.login(credentials);
-      console.log('AuthContext: Login response received', response);
       
       if (response && response.token && response.user) {
-        console.log('AuthContext: Setting user and token');
         setUser(response.user);
         localStorage.setItem('token', response.token);
         localStorage.setItem('user', JSON.stringify(response.user));
-        console.log('AuthContext: User set successfully');
       } else {
-        console.error('AuthContext: Invalid response format', response);
         throw new Error('Geçersiz yanıt formatı');
       }
       
       return response;
     } catch (err) {
-      console.error('AuthContext: Login error', err);
       const errorMessage = err.response?.data?.message || err.response?.data?.error || err.message || 'Giriş sırasında hata oluştu';
       setError(errorMessage);
       throw new Error(errorMessage);

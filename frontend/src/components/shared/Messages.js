@@ -24,11 +24,7 @@ const Messages = () => {
   }, [user]);
 
   const selectedConversation = useMemo(
-    () => {
-      const found = conversations.find(c => c._id === selectedConversationId || c.conversationId === selectedConversationId);
-      console.log('Seçili konuşma:', found);
-      return found || null;
-    },
+    () => conversations.find(c => c._id === selectedConversationId || c.conversationId === selectedConversationId) || null,
     [conversations, selectedConversationId]
   );
 
@@ -41,9 +37,7 @@ const Messages = () => {
   const loadConversations = useCallback(async () => {
     try {
       setLoadingConversations(true);
-      console.log('Konuşmalar yükleniyor...');
       const data = await messageAPI.getMyConversations();
-      console.log('Konuşmalar yüklendi:', data);
       
       // Backend'den gelen formatı kontrol et
       let conversationsList = [];
@@ -56,18 +50,15 @@ const Messages = () => {
         conversationsList = Array.isArray(data) ? data : [];
       }
       
-      console.log('İşlenen konuşmalar:', conversationsList);
       setConversations(conversationsList);
       
       // Auto-select first conversation
       if (!selectedConversationId && conversationsList.length > 0) {
         const firstId = conversationsList[0]?._id || conversationsList[0]?.conversationId;
-        console.log('İlk konuşma seçiliyor:', firstId);
         if (firstId) setSelectedConversationId(firstId);
       }
     } catch (err) {
-      console.error('Konuşmalar yüklenemedi:', err);
-      console.error('Hata detayı:', err.response?.data);
+      // ignore console noise; error is reflected in UI if needed
     } finally {
       setLoadingConversations(false);
     }
@@ -77,15 +68,12 @@ const Messages = () => {
     if (!conversationId) return;
     try {
       setLoadingMessages(true);
-      console.log('Mesajlar yükleniyor:', conversationId);
       const data = await messageAPI.getConversation(conversationId, 1, 100);
-      console.log('Mesajlar yüklendi:', data);
       setMessages(Array.isArray(data) ? data : data?.messages || []);
       // Okundu işaretle (sessizce)
       try { await messageAPI.markAllAsRead(conversationId); } catch (_) {}
     } catch (err) {
-      console.error('Mesajlar yüklenemedi:', err);
-      console.error('Hata detayı:', err.response?.data);
+      // ignore; UI will show last messages if any
     } finally {
       setLoadingMessages(false);
       // Slight delay to ensure DOM renders
@@ -98,15 +86,12 @@ const Messages = () => {
     if (!newMessage.trim() || !selectedConversationId) return;
     try {
       setSending(true);
-      console.log('Mesaj gönderiliyor:', { conversationId: selectedConversationId, content: newMessage.trim() });
       const sent = await messageAPI.sendMessage({ conversationId: selectedConversationId, content: newMessage.trim() });
-      console.log('Mesaj gönderildi:', sent);
       setMessages(prev => [...prev, sent?.message || sent?.data || sent]);
       setNewMessage('');
       setTimeout(scrollToBottom, 50);
     } catch (err) {
-      console.error('Mesaj gönderilemedi:', err);
-      console.error('Hata detayı:', err.response?.data);
+      // ignore; show silent failure
     } finally {
       setSending(false);
     }
@@ -153,10 +138,7 @@ const Messages = () => {
                     <ListGroup.Item
                       key={convId}
                       action
-                      onClick={() => {
-                        console.log('Konuşma seçiliyor:', conv);
-                        setSelectedConversationId(convId);
-                      }}
+                      onClick={() => setSelectedConversationId(convId)}
                       active={selectedConversationId === convId}
                       className="d-flex justify-content-between align-items-center"
                     >

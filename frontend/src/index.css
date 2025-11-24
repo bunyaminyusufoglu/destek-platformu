@@ -1516,6 +1516,20 @@ a.hero-btn-secondary:active {
   overflow: hidden;
 }
 
+/* Make bell icon white on colored mobile headers */
+.mobile-header .notification-bell-btn svg {
+  color: #ffffff !important;
+}
+
+.mobile-sidebar-offcanvas .notification-bell-btn svg {
+  color: #ffffff !important;
+}
+
+/* Also make it white on desktop web header area */
+.content-header .notification-bell-btn svg {
+  color: var(--color-primary) !important;
+}
+
 @keyframes dropdown-enter {
   from {
     opacity: 0;

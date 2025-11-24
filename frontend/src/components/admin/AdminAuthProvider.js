@@ -37,12 +37,10 @@ export const AdminAuthProvider = ({ children }) => {
             logout();
           }
         } catch (tokenError) {
-          console.error('Token parse error:', tokenError);
           logout();
         }
       }
     } catch (error) {
-      console.error('Admin auth check error:', error);
       logout();
     } finally {
       setLoading(false);

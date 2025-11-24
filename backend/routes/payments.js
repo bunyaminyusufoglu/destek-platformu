@@ -123,7 +123,10 @@ router.put("/admin/:id/approve", adminMiddleware, validateObjectId("id"), async 
     // Update payment request
     pr.status = "approved";
     pr.adminApprovedAt = new Date();
-    pr.adminApprovedBy = req.user._id;
+    // Only assign adminApprovedBy if it's a valid ObjectId (admin middleware uses a fake id)
+    if (req.user && req.user._id && /^[a-fA-F0-9]{24}$/.test(String(req.user._id))) {
+      pr.adminApprovedBy = req.user._id;
+    }
     await pr.save();
 
     // Socket.io bildirimi gönder - kullanıcı ve uzmana
@@ -164,7 +167,9 @@ router.put("/admin/:id/reject", adminMiddleware, validateObjectId("id"), async (
     }
     pr.status = "rejected";
     pr.adminApprovedAt = new Date();
-    pr.adminApprovedBy = req.user._id;
+    if (req.user && req.user._id && /^[a-fA-F0-9]{24}$/.test(String(req.user._id))) {
+      pr.adminApprovedBy = req.user._id;
+    }
     await pr.save();
 
     // Socket.io bildirimi gönder
