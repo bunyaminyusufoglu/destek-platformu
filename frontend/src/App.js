@@ -30,6 +30,7 @@ import OfferApproval from './components/admin/OfferApproval';
 import SupportRequestApproval from './components/admin/SupportRequestApproval';
 import PaymentApprovals from './components/admin/PaymentApprovals';
 import { settingsAPI } from './services/api';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 const PublicRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -82,13 +83,14 @@ function App() {
   }, []);
 
   return (
-    <AuthProvider>
-      <NotificationProvider>
-        <AdminAuthProvider>
-          <Router>
-          <div className="App">
-            <Header />
-            <Routes>
+    <ThemeProvider>
+      <AuthProvider>
+        <NotificationProvider>
+          <AdminAuthProvider>
+            <Router>
+            <div className="App">
+              <Header />
+              <Routes>
             {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
             <Route 
@@ -288,12 +290,13 @@ function App() {
             
             {/* Default Route */}
             <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-          </div>
-        </Router>
-      </AdminAuthProvider>
-      </NotificationProvider>
-    </AuthProvider>
+              </Routes>
+            </div>
+          </Router>
+        </AdminAuthProvider>
+        </NotificationProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

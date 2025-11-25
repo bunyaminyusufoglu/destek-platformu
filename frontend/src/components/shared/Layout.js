@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import Sidebar from './Sidebar';
 import NotificationBell from './NotificationBell';
+import ThemeToggle from './ThemeToggle';
 
 const Layout = ({ children }) => {
   useEffect(() => {
@@ -14,6 +15,7 @@ const Layout = ({ children }) => {
       <main className="main-content">
         <div className="content-header d-none d-lg-flex">
           <div className="ms-auto d-flex align-items-center gap-2">
+            <ThemeToggle />
             <NotificationBell />
           </div>
         </div>

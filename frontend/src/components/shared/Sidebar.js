@@ -3,6 +3,7 @@ import { Nav, Badge, Offcanvas, Button } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import NotificationBell from './NotificationBell';
+import ThemeToggle from './ThemeToggle';
 import { 
   FaHome, 
   FaFileAlt, 
@@ -135,6 +136,12 @@ const Sidebar = () => {
               <span className="nav-text">Çıkış Yap</span>
             </Nav.Link>
           </Nav>
+          <div className="px-3 mt-3">
+            <ThemeToggle 
+              variant="light" 
+              className="w-100 justify-content-center" 
+            />
+          </div>
         </div>
       </div>
 
@@ -159,6 +166,10 @@ const Sidebar = () => {
           
           <div className="d-flex align-items-center gap-2">
             <NotificationBell />
+            <ThemeToggle 
+              variant="outline-light" 
+              className="mobile-theme-toggle d-flex d-lg-none text-white border-0" 
+            />
             <Button 
               variant="outline-light" 
               className="mobile-menu-toggle"
@@ -232,6 +243,12 @@ const Sidebar = () => {
               <span className="nav-text">Çıkış Yap</span>
             </Nav.Link>
           </Nav>
+          <div className="px-3 mt-3">
+            <ThemeToggle 
+              variant="light" 
+              className="w-100 justify-content-center" 
+            />
+          </div>
         </Offcanvas.Body>
       </Offcanvas>
     </>

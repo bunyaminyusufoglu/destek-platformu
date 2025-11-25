@@ -13,6 +13,7 @@ import {
   FaFileAlt
 } from 'react-icons/fa';
 import { useAdminAuth } from './AdminAuthProvider';
+import ThemeToggle from '../shared/ThemeToggle';
 
 const AdminLayout = ({ children }) => {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -89,6 +90,12 @@ const AdminLayout = ({ children }) => {
               <span className="nav-text">Çıkış Yap</span>
             </Nav.Link>
           </Nav>
+          <div className="px-3 mt-3">
+            <ThemeToggle 
+              variant="light" 
+              className="w-100 justify-content-center" 
+            />
+          </div>
         </div>
       </div>
 
@@ -114,13 +121,19 @@ const AdminLayout = ({ children }) => {
             </div>
           </div>
           
-          <Button 
-            variant="outline-light" 
-            className="mobile-menu-toggle"
-            onClick={() => setShowSidebar(true)}
-          >
-            ☰
-          </Button>
+          <div className="d-flex align-items-center gap-2">
+            <ThemeToggle 
+              variant="outline-light" 
+              className="mobile-theme-toggle d-lg-none text-white border-0" 
+            />
+            <Button 
+              variant="outline-light" 
+              className="mobile-menu-toggle"
+              onClick={() => setShowSidebar(true)}
+            >
+              ☰
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -185,6 +198,12 @@ const AdminLayout = ({ children }) => {
               <span className="nav-text">Çıkış Yap</span>
             </Nav.Link>
           </Nav>
+          <div className="px-3 mt-3">
+            <ThemeToggle 
+              variant="light" 
+              className="w-100 justify-content-center" 
+            />
+          </div>
         </Offcanvas.Body>
       </Offcanvas>
 

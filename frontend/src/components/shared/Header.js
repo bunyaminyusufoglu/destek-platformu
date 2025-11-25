@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Container, Navbar, Nav, Button } from 'react-bootstrap';
 import { useAuth } from '../../contexts/AuthContext';
+import ThemeToggle from './ThemeToggle';
 
 const Header = () => {
   const { isAuthenticated, logout } = useAuth();
@@ -37,7 +38,8 @@ const Header = () => {
         
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="ms-auto">
+          <Nav className="ms-auto align-items-center gap-2">
+            <ThemeToggle variant="outline-light" className="border-0 text-white" />
             {isAuthenticated ? (
               <>
                 <Nav.Link as={Link} to="/dashboard" className="nav-link-custom">
