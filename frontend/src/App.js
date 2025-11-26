@@ -6,6 +6,7 @@ import Header from './components/shared/Header';
 import HomePage from './components/HomePage';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
+import ForgotPassword from './components/auth/ForgotPassword';
 import Dashboard from './components/shared/Dashboard';
 import Messages from './components/shared/Messages';
 import Settings from './components/shared/Settings';
@@ -106,6 +107,14 @@ function App() {
               element={
                 <PublicRoute>
                   <Register />
+                </PublicRoute>
+              } 
+            />
+            <Route 
+              path="/forgot-password" 
+              element={
+                <PublicRoute>
+                  <ForgotPassword />
                 </PublicRoute>
               } 
             />

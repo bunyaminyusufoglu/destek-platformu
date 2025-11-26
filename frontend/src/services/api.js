@@ -105,6 +105,12 @@ export const authAPI = {
     const response = await api.put('/auth/change-password', passwordData);
     return response.data;
   },
+
+  // Şifre unutma
+  forgotPassword: async (email) => {
+    const response = await api.post('/auth/forgot-password', { email });
+    return response.data;
+  },
 };
 
 // Support API functions

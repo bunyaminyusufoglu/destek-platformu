@@ -179,7 +179,7 @@ const Register = () => {
                   </Row>
 
                   <Form.Group className="mb-4">
-                    <Form.Label className="fw-medium text-dark">Rol Seçimi *</Form.Label>
+                    <Form.Label className="fw-medium" style={{ color: 'var(--text-primary)' }}>Rol Seçimi *</Form.Label>
                     <div className="d-flex gap-4">
                       <Form.Check
                         type="radio"
@@ -206,7 +206,7 @@ const Register = () => {
 
                   {formData.role === 'expert' && (
                     <Form.Group className="mb-4">
-                      <Form.Label className="fw-medium text-dark">Yetenekleriniz</Form.Label>
+                      <Form.Label className="fw-medium" style={{ color: 'var(--text-primary)' }}>Yetenekleriniz</Form.Label>
                       <InputGroup className="mb-3">
                         <Form.Control
                           type="text"

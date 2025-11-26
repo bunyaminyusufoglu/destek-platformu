@@ -150,11 +150,20 @@ const AdminLogin = () => {
           min-height: 100vh;
         }
 
+        :global([data-theme='dark']) .admin-login-page {
+          background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
         .admin-login-card {
           border: none;
           border-radius: 20px;
           background: rgba(255, 255, 255, 0.95);
           backdrop-filter: blur(10px);
+        }
+
+        :global([data-theme='dark']) .admin-login-card {
+          background: var(--surface-card);
+          border: 1px solid var(--border-color);
         }
 
         .admin-icon {
@@ -175,6 +184,10 @@ const AdminLogin = () => {
           margin-bottom: 0;
         }
 
+        :global([data-theme='dark']) .admin-login-title {
+          color: var(--text-primary);
+        }
+
         .admin-input {
           border: 2px solid #e2e8f0;
           border-radius: 12px;
@@ -183,10 +196,21 @@ const AdminLogin = () => {
           transition: all 0.3s ease;
         }
 
+        :global([data-theme='dark']) .admin-input {
+          border-color: var(--border-color);
+          background: var(--surface-card);
+          color: var(--text-primary);
+        }
+
         .admin-input:focus {
           border-color: #667eea;
           background: white;
           box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        :global([data-theme='dark']) .admin-input:focus {
+          background: var(--surface-card);
+          color: var(--text-primary);
         }
 
         .admin-login-btn {

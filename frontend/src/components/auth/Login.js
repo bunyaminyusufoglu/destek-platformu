@@ -135,7 +135,7 @@ const Login = () => {
                 </Form>
 
                 <div className="text-center pt-3">
-                  <Link to="/register" className="modern-forgot-link">
+                  <Link to="/forgot-password" className="modern-forgot-link">
                     Şifrenizi mi unuttunuz?
                   </Link>
                 </div>

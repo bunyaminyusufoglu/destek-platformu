@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import authMiddleware from "../middleware/authMiddleware.js";
-import { validate, registerSchema, loginSchema, updateProfileSchema, changePasswordSchema } from "../middleware/validation.js";
+import { validate, registerSchema, loginSchema, updateProfileSchema, changePasswordSchema, forgotPasswordSchema } from "../middleware/validation.js";
 
 const router = express.Router();
 
@@ -178,6 +178,54 @@ router.put("/change-password", authMiddleware, validate(changePasswordSchema), a
     res.json({ message: "Şifre başarıyla değiştirildi" });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// Şifre unutma - Mail gönder
+router.post("/forgot-password", validate(forgotPasswordSchema), async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // Email'i normalize et (küçük harfe çevir)
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Email ile kullanıcı ara (case-insensitive)
+    const user = await User.findOne({ 
+      email: { $regex: new RegExp(`^${normalizedEmail}$`, 'i') }
+    });
+
+    // Güvenlik: Kullanıcı bulunamasa bile başarı mesajı döndür
+    // (Email enumeration saldırılarını önlemek için)
+    if (!user) {
+      return res.status(404).json({ message: "Bu email adresine kayıtlı kullanıcı bulunamadı" });
+    }
+
+    // Şifre sıfırlama token'ı oluştur
+    const resetToken = jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    // Şifre sıfırlama linki oluştur
+    const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+
+    // Email gönderme işlemi (şimdilik console.log, daha sonra nodemailer ile gerçek email gönderilebilir)
+    console.log('=== ŞİFRE SIFIRLAMA MAİLİ ===');
+    console.log('Alıcı:', user.email);
+    console.log('İsim:', user.name);
+    console.log('Şifre Sıfırlama Linki:', resetLink);
+    console.log('===========================');
+
+    // TODO: Gerçek email gönderme servisi entegre edilecek
+    // await sendPasswordResetEmail(user.email, user.name, resetLink);
+
+    res.json({ 
+      message: "Şifre sıfırlama maili gönderildi. Lütfen email adresinizi kontrol edin." 
+    });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    res.status(500).json({ error: err.message || "Şifre sıfırlama maili gönderilirken bir hata oluştu" });
   }
 });
 

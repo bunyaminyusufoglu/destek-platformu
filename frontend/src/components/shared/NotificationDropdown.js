@@ -97,11 +97,13 @@ const NotificationDropdown = ({ onClose }) => {
         maxWidth: '90vw',
         maxHeight: '500px',
         zIndex: 1050,
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        border: '1px solid #dee2e6'
+        boxShadow: 'var(--shadow-soft)',
+        border: '1px solid var(--border-color)',
+        backgroundColor: 'var(--surface-card)',
+        color: 'var(--text-primary)'
       }}
     >
-      <Card.Header className="d-flex justify-content-between align-items-center bg-light">
+      <Card.Header className="d-flex justify-content-between align-items-center" style={{ backgroundColor: 'var(--surface-muted)', borderBottomColor: 'var(--border-color)' }}>
         <div className="d-flex align-items-center">
           <strong>Bildirimler</strong>
           {unreadCount > 0 && (
@@ -150,16 +152,17 @@ const NotificationDropdown = ({ onClose }) => {
                 className={`notification-item ${!notification.read ? 'unread' : ''}`}
                 style={{
                   cursor: 'pointer',
-                  backgroundColor: !notification.read ? '#f8f9fa' : 'white',
-                  borderLeft: !notification.read ? '3px solid #0d6efd' : '3px solid transparent',
-                  padding: '12px'
+                  backgroundColor: !notification.read ? 'var(--surface-muted)' : 'var(--surface-card)',
+                  borderLeft: !notification.read ? '3px solid var(--color-primary)' : '3px solid transparent',
+                  padding: '12px',
+                  color: 'var(--text-primary)'
                 }}
                 onClick={() => handleNotificationClick(notification)}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = !notification.read ? '#e9ecef' : '#f8f9fa';
+                  e.currentTarget.style.backgroundColor = !notification.read ? 'var(--surface-muted)' : 'var(--surface-muted)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = !notification.read ? '#f8f9fa' : 'white';
+                  e.currentTarget.style.backgroundColor = !notification.read ? 'var(--surface-muted)' : 'var(--surface-card)';
                 }}
               >
                 <div className="d-flex align-items-start">
@@ -184,7 +187,7 @@ const NotificationDropdown = ({ onClose }) => {
                         <FaTrash size={12} />
                       </Button>
                     </div>
-                    <p className="notification-message mb-1" style={{ fontSize: '0.85rem', color: '#6c757d' }}>
+                    <p className="notification-message mb-1" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                       {notification.message}
                     </p>
                     <small className="text-muted" style={{ fontSize: '0.75rem' }}>
@@ -199,7 +202,7 @@ const NotificationDropdown = ({ onClose }) => {
       </Card.Body>
       
       {notifications.length > 0 && (
-        <Card.Footer className="bg-light text-center">
+        <Card.Footer className="text-center" style={{ backgroundColor: 'var(--surface-muted)', borderTopColor: 'var(--border-color)' }}>
           <Button
             variant="link"
             size="sm"

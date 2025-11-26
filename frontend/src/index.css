@@ -92,15 +92,15 @@ body {
 
 /* Input caret color */
 .form-control, input, textarea {
-  caret-color: #000000 !important;
+  caret-color: var(--text-primary) !important;
 }
 
 .form-control:focus, input:focus, textarea:focus {
-  caret-color: #000000 !important;
+  caret-color: var(--text-primary) !important;
 }
 
 .auth-input, .auth-input:focus {
-  caret-color: #000000 !important;
+  caret-color: var(--text-primary) !important;
 }
 
 code {
@@ -132,6 +132,11 @@ code {
   height: 70%;
   background: linear-gradient(180deg, #1a237e 0%, #283593 30%, #3949ab 60%, #5c6bc0 100%);
   position: relative;
+  transition: background 0.3s ease;
+}
+
+[data-theme='dark'] .sky-gradient {
+  background: linear-gradient(180deg, #0a0f1f 0%, #0f172a 30%, #1e293b 60%, #334155 100%);
 }
 
 .stars {
@@ -157,6 +162,11 @@ code {
   height: 30%;
   position: relative;
   background: linear-gradient(180deg, #5c6bc0 0%, #7986cb 50%, #9fa8da 100%);
+  transition: background 0.3s ease;
+}
+
+[data-theme='dark'] .mountains {
+  background: linear-gradient(180deg, #1e293b 0%, #334155 50%, #475569 100%);
 }
 
 .mountain {
@@ -171,6 +181,7 @@ code {
   height: 100%;
   background: linear-gradient(180deg, #1a237e 0%, #283593 50%, #3949ab 100%);
   transform: skewX(-8deg);
+  transition: background 0.3s ease;
 }
 
 .mountain-2 {
@@ -179,6 +190,7 @@ code {
   height: 85%;
   background: linear-gradient(180deg, #283593 0%, #3949ab 50%, #1a237e 100%);
   transform: skewX(5deg);
+  transition: background 0.3s ease;
 }
 
 .mountain-3 {
@@ -187,6 +199,19 @@ code {
   height: 95%;
   background: linear-gradient(180deg, #3949ab 0%, #283593 50%, #1a237e 100%);
   transform: skewX(-3deg);
+  transition: background 0.3s ease;
+}
+
+[data-theme='dark'] .mountain-1 {
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+}
+
+[data-theme='dark'] .mountain-2 {
+  background: linear-gradient(180deg, #1e293b 0%, #334155 50%, #0f172a 100%);
+}
+
+[data-theme='dark'] .mountain-3 {
+  background: linear-gradient(180deg, #334155 0%, #1e293b 50%, #0f172a 100%);
 }
 
 /* Modern Auth Card */
@@ -372,21 +397,23 @@ code {
 }
 
 .auth-input {
-  border: 2px solid #e9ecef;
+  border: 2px solid var(--border-color);
   border-radius: 12px;
   padding: 12px 16px;
   transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.9);
-  caret-color: #000000;
+  background: var(--surface-card);
+  color: var(--text-primary);
+  caret-color: var(--text-primary);
   cursor: text;
 }
 
 .auth-input:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
-  background: white;
+  background: var(--surface-card);
   transform: translateY(-2px);
-  caret-color: #000000;
+  caret-color: var(--text-primary);
+  color: var(--text-primary);
 }
 
 .auth-btn {
@@ -905,8 +932,13 @@ code {
 }
 
 .mobile-user-info {
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
-  border: 1px solid rgba(102, 126, 234, 0.1);
+  background: linear-gradient(135deg, var(--surface-muted), var(--surface-card)) !important;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .mobile-user-info {
+  background: linear-gradient(135deg, var(--surface-muted), var(--surface-card)) !important;
 }
 
 .mobile-sidebar-offcanvas .sidebar-content {
@@ -1061,16 +1093,18 @@ code {
 }
 
 .admin-input {
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--border-color);
   border-radius: 12px;
   padding: 12px 16px;
-  background: #f8f9fa;
+  background: var(--surface-card);
+  color: var(--text-primary);
   transition: all 0.3s ease;
 }
 
 .admin-input:focus {
   border-color: #667eea;
-  background: white;
+  background: var(--surface-card);
+  color: var(--text-primary);
   box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
 }
 
@@ -1398,7 +1432,7 @@ a.hero-btn-secondary:active {
 
 .home-stats-label {
   font-size: 0.8rem;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin-top: 2px;
 }
 
@@ -1545,10 +1579,11 @@ a.hero-btn-secondary:active {
 }
 
 .footer {
-  background: #1f2937;
-  color: white;
+  background: var(--surface-card);
+  color: var(--text-primary);
   padding: 2rem 0;
   text-align: center;
+  border-top: 1px solid var(--border-color);
 }
 
 .footer-text {
@@ -1664,6 +1699,119 @@ a.hero-btn-secondary:active {
 
 [data-theme='dark'] .chat-bubble.mine {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+}
+
+/* Admin Login Page Dark Mode */
+[data-theme='dark'] .admin-login-page {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+[data-theme='dark'] .admin-login-card {
+  background: var(--surface-card) !important;
+  border-color: var(--border-color) !important;
+}
+
+[data-theme='dark'] .admin-login-title {
+  color: var(--text-primary);
+}
+
+/* Notification Dropdown Dark Mode */
+[data-theme='dark'] .notification-dropdown {
+  background: var(--surface-card) !important;
+  border-color: var(--border-color) !important;
+}
+
+[data-theme='dark'] .notification-dropdown .card-header {
+  background: var(--surface-muted) !important;
+  border-bottom-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme='dark'] .notification-dropdown .card-footer {
+  background: var(--surface-muted) !important;
+  border-top-color: var(--border-color) !important;
+}
+
+[data-theme='dark'] .notification-item {
+  background: var(--surface-card) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme='dark'] .notification-item.unread {
+  background: var(--surface-muted) !important;
+}
+
+[data-theme='dark'] .notification-message {
+  color: var(--text-secondary) !important;
+}
+
+/* Form Label Dark Mode */
+[data-theme='dark'] .form-label.text-dark {
+  color: var(--text-primary) !important;
+}
+
+/* Auth Card Dark Mode Enhancements */
+[data-theme='dark'] .auth-card::before {
+  background: linear-gradient(90deg, transparent, rgba(248, 250, 252, 0.1), transparent);
+}
+
+/* Modern Input Focus Dark Mode */
+[data-theme='dark'] .modern-input:focus {
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.25);
+}
+
+/* Stats Card Hover Dark Mode */
+[data-theme='dark'] .stats-card:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.65);
+}
+
+/* Floating Card Dark Mode */
+[data-theme='dark'] .floating-card {
+  background: rgba(30, 41, 59, 0.95);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+/* Bootstrap Overrides for Dark Mode */
+[data-theme='dark'] .bg-white,
+[data-theme='dark'] .bg-light {
+  background-color: var(--surface-card) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme='dark'] .border-bottom {
+  border-bottom-color: var(--border-color) !important;
+}
+
+[data-theme='dark'] .border {
+  border-color: var(--border-color) !important;
+}
+
+[data-theme='dark'] .rounded {
+  border-color: var(--border-color);
+}
+
+/* Card Header Dark Mode */
+[data-theme='dark'] .card-header.bg-white,
+[data-theme='dark'] .card-header.bg-light {
+  background-color: var(--surface-card) !important;
+  border-bottom-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Text Color Overrides */
+[data-theme='dark'] .text-dark {
+  color: var(--text-primary) !important;
+}
+
+[data-theme='dark'] .text-muted {
+  color: var(--text-secondary) !important;
+}
+
+/* Badge Dark Mode */
+[data-theme='dark'] .badge.bg-success.text-white {
+  background-color: var(--color-success) !important;
+  color: white !important;
 }
 
 /* Animations */
